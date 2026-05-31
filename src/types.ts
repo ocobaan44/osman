@@ -3,6 +3,7 @@ export type AgentStatus = "running" | "idle" | "waiting" | "done" | "error";
 export interface Agent {
   id: string;
   parent_id: string | null;
+  agentType: string;
   status: AgentStatus;
   model: string;
   session_id: string;
