@@ -3,3 +3,5 @@ dist/
 *.js.map
 .browsers/
 e2e/screenshots/
+test-results/
+*.deb
