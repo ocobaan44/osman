@@ -14,6 +14,7 @@ import {
 } from "./downloader";
 import { SunucuOptions } from "./types";
 import { checkUrl } from "./urlguard";
+import { kestirmePlist } from "./kestirmeDosyasi";
 
 const MAX_BYTES = parseInt(process.env.MAX_BYTES ?? "", 10) || 500 * 1024 * 1024;
 const MAX_DURATION_SEC = parseInt(process.env.MAX_DURATION_SEC ?? "", 10) || 900;
@@ -35,6 +36,30 @@ function timingSafeEqual(a: string, b: string): boolean {
     return false;
   }
   return crypto.timingSafeEqual(bufA, bufB);
+}
+
+/**
+ * url= değerini ham sorgu metninden alır; searchParams'a bırakmıyoruz.
+ *
+ * İki sebep: (1) kodlanmamış bir video adresi kendi & ve = işaretlerini taşır
+ * (`?v=abc&t=30s`) ve searchParams bunları parametre sınırı sanıp adresi keser;
+ * (2) ham kabul edince kestirmedeki "URL Kodla" aksiyonu gereksizleşiyor, elle
+ * kurulum 4 adımdan 2'ye iniyor.
+ *
+ * Bu yüzden url= her zaman sorgunun SON parametresi olmak zorunda — sonrasındaki
+ * her şey adrese ait sayılır. Zaten kodlanmış gelen istekler de çalışsın diye,
+ * ham değer http(s):// ile başlamıyorsa bir kez çözmeyi deniyoruz.
+ */
+export function rawUrlParam(search: string): string {
+  const m = /(?:^|[?&])url=(.*)$/s.exec(search);
+  if (!m) return "";
+  const raw = m[1];
+  if (/^https?:\/\//i.test(raw)) return raw;
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
 }
 
 function isAuthorized(req: http.IncomingMessage, url: URL, token: string): boolean {
@@ -121,26 +146,30 @@ function setupPage(req: http.IncomingMessage, token: string): string {
  button{font:inherit;padding:10px 16px;border:0;border-radius:8px;background:#0a84ff;color:#fff;width:100%}
 </style></head><body>
 <h1>Video İndir — kurulum</h1>
-<p>iPhone'da <b>Kısayollar</b> uygulamasını aç, <b>+</b> ile yeni kestirme oluştur ve
-şu 4 aksiyonu sırayla ekle.</p>
 
-<h2>1. URL Kodla</h2>
-<p>Ara: <code>URL Kodla</code>. Girdisi <b>Kestirme Girdisi</b> olmalı.</p>
+<h2>Kolay yol: hazır dosya</h2>
+<p>Önce <b>Ayarlar → Kısayollar → Güvenilmeyen Kısayollara İzin Ver</b>'i aç. Bu anahtar
+görünmüyorsa Kısayollar'da herhangi bir kestirmeyi bir kez çalıştır, sonra tekrar bak
+(Apple imzasız kestirmeleri varsayılan olarak engelliyor).</p>
+<p><a href="/kestirme.shortcut?t=${encodeURIComponent(token)}"><button>Kestirmeyi indir</button></a></p>
+<p>İnen dosyaya dokun → <b>Kısayol Ekle</b>. Sonra kestirmeye uzun bas → <b>Ayrıntılar</b> →
+<b>Paylaşım Sayfasında Göster</b> açık olsun.</p>
+<p class="uyari">Bu dosyayı test edemedim — imzasız kestirme kurulumu ancak gerçek bir
+iPhone'da denenebiliyor. Kabul edilmezse aşağıdaki elle kurulum kesin çalışır.</p>
 
-<h2>2. Metin</h2>
-<p>Ara: <code>Metin</code>. Aşağıdaki adresi kopyalayıp yapıştır, <b>sonuna</b> 1. adımın
-çıktısı olan <b>URL Kodlandı</b> değişkenini ekle:</p>
+<h2>Elle kurulum (2 aksiyon)</h2>
+<p><b>Kısayollar</b> → <b>+</b> ile yeni kestirme.</p>
+
+<h3>1. URL İçeriğini Al</h3>
+<p>Ara: <code>URL İçeriğini Al</code>. URL alanına aşağıdaki adresi yapıştır, imleç
+<b>en sondayken</b> klavye üstündeki değişken çubuğundan <b>Kestirme Girdisi</b>'ni ekle.</p>
 <pre id="u">${escapeHtml(indirUrl)}</pre>
 <button onclick="navigator.clipboard.writeText(document.getElementById('u').textContent);this.textContent='Kopyalandı ✓'">Adresi kopyala</button>
 
-<h2>3. URL İçeriğini Al</h2>
-<p>Ara: <code>URL İçeriğini Al</code>. URL alanına 2. adımın <b>Metin</b> çıktısını koy.
-Yöntem <b>GET</b> kalsın.</p>
+<h3>2. Fotoğraf Albümüne Kaydet</h3>
+<p>Ara: <code>Fotoğraf Albümüne Kaydet</code>. Başka ayar gerekmez.</p>
 
-<h2>4. Fotoğraf Albümüne Kaydet</h2>
-<p>Ara: <code>Fotoğraf Albümüne Kaydet</code>.</p>
-
-<h2>Son ayar</h2>
+<h3>Son ayar</h3>
 <p>Kestirme ayarlarında (ⓘ) <b>Paylaşım Sayfasında Göster</b>'i aç, kabul edilen tür
 olarak <b>URL</b> ve <b>Metin</b> seçili olsun. Adını <b>Video İndir</b> koy.</p>
 
@@ -183,6 +212,23 @@ export function createServer(opts: SunucuOptions): http.Server {
       return;
     }
 
+    // Token'ı gömdüğü için /'la aynı korumada olmalı.
+    if (route === "/kestirme.shortcut") {
+      if (!isAuthorized(req, url, opts.token)) {
+        sendJson(res, 401, { ok: false, error: "Geçersiz veya eksik token." });
+        return;
+      }
+      const body = kestirmePlist(`${baseUrl(req)}/indir?t=${encodeURIComponent(opts.token)}&url=`);
+      res.writeHead(200, {
+        "Content-Type": "application/x-plist",
+        "Content-Disposition": 'attachment; filename="Video Indir.shortcut"',
+        "Content-Length": Buffer.byteLength(body),
+        "Cache-Control": "no-store",
+      });
+      res.end(body);
+      return;
+    }
+
     if (route !== "/indir" && route !== "/bilgi") {
       sendJson(res, 404, { ok: false, error: "Böyle bir adres yok." });
       return;
@@ -193,7 +239,7 @@ export function createServer(opts: SunucuOptions): http.Server {
       return;
     }
 
-    const checked = await checkUrl(url.searchParams.get("url") ?? "");
+    const checked = await checkUrl(rawUrlParam(url.search));
     if (!checked.ok || !checked.url) {
       sendJson(res, 400, { ok: false, error: checked.error });
       return;

@@ -41,7 +41,7 @@ bir** `https://<servis>.onrender.com/health` adresine ping kur. Ücretsiz katman
 
 ---
 
-## 2. Kestirmeyi kur (4 aksiyon, ~2 dakika)
+## 2. Kestirmeyi kur (~2 dakika)
 
 Telefonda `https://<servis-adin>.onrender.com/` adresini aç. Sayfa parola soracak —
 Render → **Environment** → `INDIR_TOKEN` değerini yapıştır. (Sayfa token'ı ekrana
@@ -51,14 +51,23 @@ loglarında herkese açık listelendiğinden adresin bilinmemesi koruma sayılma
 Parolayı girince kurulum sayfası sunucu adresini ve token'ı **önceden doldurulmuş**
 halde verir, 2. adımdaki metni tek dokunuşla kopyalarsın.
 
+### Kolay yol: hazır dosya
+
+Kurulum sayfasındaki **Kestirmeyi indir** düğmesi hazır bir `.shortcut` dosyası verir.
+Önce **Ayarlar → Kısayollar → Güvenilmeyen Kısayollara İzin Ver**'i açman gerekir; bu
+anahtar ancak en az bir kestirme çalıştırdıktan sonra beliriyor (Apple imzasız
+kestirmeleri varsayılan olarak engelliyor, imzalamak da ancak gerçek cihazda mümkün).
+
+### Elle kurulum (2 aksiyon)
+
 Kısayollar → **+** → şu aksiyonları sırayla ekle:
 
 | # | Aksiyon | Ayar |
 |---|---------|------|
-| 1 | **URL Kodla** | Girdi: `Kestirme Girdisi` |
-| 2 | **Metin** | `https://<servis>.onrender.com/indir?t=<TOKEN>&url=` + [1. adımın çıktısı] |
-| 3 | **URL İçeriğini Al** | URL: [2. adımın Metin çıktısı], Yöntem: GET |
-| 4 | **Fotoğraf Albümüne Kaydet** | — |
+| 1 | **URL İçeriğini Al** | URL: yapıştırdığın adres + sonuna `Kestirme Girdisi` değişkeni |
+| 2 | **Fotoğraf Albümüne Kaydet** | — |
+
+Sunucu `url=` değerini ham haliyle okuduğu için ayrı bir **URL Kodla** adımı gerekmiyor.
 
 Sonra kestirme ayarları (ⓘ) → **Paylaşım Sayfasında Göster** açık, kabul edilen
 tür **URL** ve **Metin**. Adı: **Video İndir**.
@@ -69,8 +78,8 @@ sonra video Fotoğraflar'da.
 
 ### Yedekleme
 Kestirmeyi kurduktan sonra **Paylaş → iCloud Bağlantısını Kopyala** yap ve linki
-bir yere kaydet. Telefon değişirse tek dokunuşla geri kurarsın (bizim imzasız
-kestirme dosyası üretmemiz iOS 15+ imza zorunluluğu yüzünden mümkün değil).
+bir yere kaydet. Telefon değişirse tek dokunuşla geri kurarsın — sunucunun ürettiği
+dosya imzasız olduğu için her kurulumda "Güvenilmeyen Kısayollar" ayarı gerekir.
 
 ---
 
@@ -102,7 +111,7 @@ Herkese açık olmayan LinkedIn/Instagram gönderileri için oturum çerezi gere
 | **Uzun videolar** | 15 dakikadan uzun ve birleştirme gerektiren videolar reddedilir; bağlantıya `&k=hizli` ekle (daha düşük çözünürlük, anında akar). |
 | **Boyut** | 500 MB üstü reddedilir (`MAX_BYTES` ile değiştirilebilir). |
 | **yt-dlp bayatlaması** | Siteler değiştikçe kırılır. Render'da **Manual Deploy → Clear build cache & deploy** ile yt-dlp güncellenir. |
-| **Fotoğraflar reddederse** | 4. aksiyonu **Dosyayı Kaydet** yapan ikinci bir kestirme kur. |
+| **Fotoğraflar reddederse** | 2. aksiyonu **Dosyayı Kaydet** yapan ikinci bir kestirme kur. |
 
 ---
 
@@ -124,7 +133,8 @@ INDIR_TOKEN=$(openssl rand -base64 32) npm run sunucu
 
 | Adres | Açıklama |
 |---|---|
-| `GET /` veya `/kestirme` | Kurulum sayfası (token doldurulmuş) |
+| `GET /` veya `/kestirme` | Kurulum sayfası — token ister |
+| `GET /kestirme.shortcut?t=` | Kurulabilir `.shortcut` dosyası (imzasız) |
 | `GET /health` | Sağlık kontrolü — token gerekmez, uptime ping'i için ucuz |
 | `GET /indir?t=&url=&k=` | Videoyu MP4 olarak döner. `k=hizli` → sadece tek parça formatlar |
 | `GET /bilgi?t=&url=` | Sadece metadata (başlık, süre, boyut) |

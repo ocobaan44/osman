@@ -2,7 +2,7 @@ import * as dns from "dns";
 import * as http from "http";
 import { EventEmitter } from "events";
 import { PassThrough } from "stream";
-import { createServer } from "../server";
+import { createServer, rawUrlParam } from "../server";
 import * as downloader from "../downloader";
 
 jest.mock("dns", () => ({ promises: { lookup: jest.fn() } }));
@@ -308,5 +308,48 @@ describe("unknown routes", () => {
     const res = await get(port, "/olmayan");
     expect(res.status).toBe(404);
     expect(JSON.parse(res.body).ok).toBe(false);
+  });
+});
+
+// ── ham url= ayrıştırma ─────────────────────────────────────────
+
+describe("rawUrlParam", () => {
+  it("keeps a raw video URL's own query intact", () => {
+    // searchParams olsaydı &t=30s ayrı parametre sanılıp adres kesilirdi.
+    expect(rawUrlParam("?t=TOK&url=https://youtu.be/abc?v=1&t=30s")).toBe(
+      "https://youtu.be/abc?v=1&t=30s",
+    );
+  });
+
+  it("still accepts a percent-encoded URL", () => {
+    expect(rawUrlParam("?t=TOK&url=https%3A%2F%2Fexample.com%2Fa%3Fb%3Dc")).toBe(
+      "https://example.com/a?b=c",
+    );
+  });
+
+  it("returns empty when url= is absent", () => {
+    expect(rawUrlParam("?t=TOK")).toBe("");
+  });
+
+  it("does not mistake a token containing 'url=' for the parameter", () => {
+    expect(rawUrlParam("?t=xxurl=yy&url=https://example.com/v")).toBe("https://example.com/v");
+  });
+});
+
+// ── kestirme dosyası ────────────────────────────────────────────
+
+describe("GET /kestirme.shortcut", () => {
+  it("serves a plist carrying the token", async () => {
+    const res = await get(port, `/kestirme.shortcut?t=${encodeURIComponent(TOKEN)}`);
+    expect(res.status).toBe(200);
+    expect(res.headers["content-type"]).toBe("application/x-plist");
+    expect(res.body).toContain("is.workflow.actions.savetocameraroll");
+    expect(res.body).toContain(encodeURIComponent(TOKEN));
+  });
+
+  it("requires the token", async () => {
+    const res = await get(port, "/kestirme.shortcut");
+    expect(res.status).toBe(401);
+    expect(res.body).not.toContain(TOKEN);
   });
 });
