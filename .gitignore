@@ -5,3 +5,8 @@ dist/
 e2e/screenshots/
 test-results/
 *.deb
+
+cookies.txt
+*.cookies
+.env
+indirilenler/

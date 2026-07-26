@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import { listAgents, listSessionAgents } from "./agents";
+import { indirVideo } from "./downloader";
+import { startServer } from "./server";
 import { printStatusLine } from "./statusline";
 
 const program = new Command();
@@ -42,6 +44,37 @@ program
   .action((opts) => {
     const cwd = (opts.cwd as string | undefined) ?? process.cwd();
     listSessionAgents(cwd, { json: opts.json as boolean, all: opts.all as boolean });
+  });
+
+program
+  .command("indir")
+  .description("Bir video bağlantısını indir (LinkedIn, Instagram, X, YouTube, ...)")
+  .requiredOption("--url <url>", "Video bağlantısı")
+  .option("--out <dir>", "Çıktı klasörü", "indirilenler")
+  .option("--json", "Output as JSON", false)
+  .action((opts) => {
+    void indirVideo(opts.url as string, {
+      json: opts.json as boolean,
+      out: opts.out as string | undefined,
+    });
+  });
+
+program
+  .command("sunucu")
+  .description("iPhone kestirmesinin kullandığı indirme sunucusunu başlat")
+  .option("--port <n>", "Port (varsayılan: PORT değişkeni veya 8080)")
+  .action((opts) => {
+    const token = process.env.INDIR_TOKEN ?? "";
+    if (!token) {
+      // Kimliksiz bir yt-dlp servisi internete açıldığında açık proxy'ye dönüşür.
+      console.log("INDIR_TOKEN tanımlı değil. Sunucu başlatılmadı.");
+      console.log("Örnek: INDIR_TOKEN=$(openssl rand -base64 32) npm run sunucu");
+      process.exit(1);
+    }
+
+    const port =
+      parseInt((opts.port as string | undefined) ?? process.env.PORT ?? "", 10) || 8080;
+    startServer({ port, token });
   });
 
 program.parse(process.argv);

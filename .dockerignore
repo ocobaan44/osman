@@ -1,0 +1,14 @@
+node_modules
+dist
+.git
+.gitignore
+e2e
+test-results
+scripts
+docs
+playwright.config.ts
+jest.config.js
+cookies.txt
+*.cookies
+.env
+indirilenler

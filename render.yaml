@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: video-indirici
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: frankfurt
+    healthCheckPath: /health
+    envVars:
+      # Kestirmenin kullandığı parola. Render üretir; Dashboard → Environment'tan
+      # okuyup kurulum sayfasında (/) kullanabilirsin.
+      - key: INDIR_TOKEN
+        generateValue: true
+      - key: PORT
+        value: 8080
+      # Giriş gerektiren LinkedIn/Instagram gönderileri için:
+      # Dashboard → Environment → Secret Files ile cookies.txt yükle, sonra
+      # bu değişkeni /etc/secrets/cookies.txt olarak ayarla.
+      - key: COOKIES_FILE
+        sync: false
+      - key: MAX_BYTES
+        value: "524288000"
+      - key: MAX_DURATION_SEC
+        value: "900"
