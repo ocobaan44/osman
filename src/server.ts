@@ -69,6 +69,41 @@ function baseUrl(req: http.IncomingMessage): string {
   return `${proto.split(",")[0]}://${host}`;
 }
 
+/**
+ * Token'sız gelene gösterilir. Kurulum sayfası token'ı ekrana bastığı için kendisi de
+ * korunmak zorunda: Render alt alan adları CT loglarında herkese açık listelendiğinden
+ * adresin bilinmemesi bir koruma sayılmaz.
+ */
+function tokenIstePage(): string {
+  return `<!doctype html>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Video İndir — parola gerekli</title>
+<style>
+ body{font:16px/1.6 -apple-system,BlinkMacSystemFont,sans-serif;margin:0;padding:24px;max-width:640px;background:#f7f7f8;color:#111}
+ h1{font-size:22px}
+ input{font:inherit;padding:10px;width:100%;box-sizing:border-box;border:1px solid #ccc;border-radius:8px}
+ button{font:inherit;padding:10px 16px;margin-top:12px;border:0;border-radius:8px;background:#0a84ff;color:#fff;width:100%}
+ code{background:#e9e9ec;border-radius:6px;padding:2px 5px;font-size:14px}
+ ol{padding-left:20px} li{margin:8px 0}
+</style></head><body>
+<h1>Parola gerekli</h1>
+<p>Kurulum sayfası kestirmenin parolasını ekrana yazdığı için parolayla korunuyor.</p>
+<form method="GET" action="/">
+  <input name="t" type="password" placeholder="INDIR_TOKEN" autocomplete="off" autofocus>
+  <button type="submit">Aç</button>
+</form>
+<h2 style="font-size:17px">Parolayı nereden alacaksın?</h2>
+<ol>
+  <li>Render panelinde servisini aç.</li>
+  <li>Soldan <b>Environment</b> sekmesine gir.</li>
+  <li><code>INDIR_TOKEN</code> satırındaki değeri kopyala, yukarıya yapıştır.</li>
+</ol>
+</body></html>
+`;
+}
+
 function setupPage(req: http.IncomingMessage, token: string): string {
   const indirUrl = `${baseUrl(req)}/indir?t=${encodeURIComponent(token)}&url=`;
   return `<!doctype html>
@@ -136,10 +171,13 @@ export function createServer(opts: SunucuOptions): http.Server {
     }
 
     if (route === "/" || route === "/kestirme") {
-      const body = setupPage(req, opts.token);
-      res.writeHead(200, {
+      const yetkili = isAuthorized(req, url, opts.token);
+      const body = yetkili ? setupPage(req, opts.token) : tokenIstePage();
+      res.writeHead(yetkili ? 200 : 401, {
         "Content-Type": "text/html; charset=utf-8",
         "Content-Length": Buffer.byteLength(body),
+        "Cache-Control": "no-store",
+        "X-Robots-Tag": "noindex",
       });
       res.end(body);
       return;

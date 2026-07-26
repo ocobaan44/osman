@@ -116,14 +116,34 @@ describe("GET /health", () => {
 
 describe("GET /", () => {
   it("serves the setup page with the token already filled in", async () => {
-    const res = await get(port, "/");
+    const res = await get(port, `/?t=${encodeURIComponent(TOKEN)}`);
     expect(res.status).toBe(200);
     expect(res.headers["content-type"]).toContain("text/html");
     expect(res.body).toContain(`/indir?t=${encodeURIComponent(TOKEN)}`);
   });
 
   it("is also reachable at /kestirme", async () => {
-    expect((await get(port, "/kestirme")).status).toBe(200);
+    expect((await get(port, `/kestirme?t=${encodeURIComponent(TOKEN)}`)).status).toBe(200);
+  });
+
+  // Sayfa token'ı ekrana bastığı için korunmazsa token koruması tümden anlamsızlaşır:
+  // Render alt alan adları CT loglarında herkese açık, yani adres sır değil.
+  it("never leaks the token to an unauthenticated visitor", async () => {
+    const res = await get(port, "/");
+    expect(res.status).toBe(401);
+    expect(res.body).not.toContain(TOKEN);
+  });
+
+  it("rejects a wrong token on the setup page too", async () => {
+    const res = await get(port, "/?t=yanlis");
+    expect(res.status).toBe(401);
+    expect(res.body).not.toContain(TOKEN);
+  });
+
+  it("keeps the setup page out of caches and search engines", async () => {
+    const res = await get(port, `/?t=${encodeURIComponent(TOKEN)}`);
+    expect(res.headers["cache-control"]).toBe("no-store");
+    expect(res.headers["x-robots-tag"]).toBe("noindex");
   });
 });
 

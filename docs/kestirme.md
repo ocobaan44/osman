@@ -43,9 +43,13 @@ bir** `https://<servis>.onrender.com/health` adresine ping kur. Ücretsiz katman
 
 ## 2. Kestirmeyi kur (4 aksiyon, ~2 dakika)
 
-Telefonda `https://<servis-adin>.onrender.com/` adresini aç — kurulum sayfası
-sunucu adresini ve token'ı **önceden doldurulmuş** halde verir, 2. adımdaki metni
-tek dokunuşla kopyalarsın.
+Telefonda `https://<servis-adin>.onrender.com/` adresini aç. Sayfa parola soracak —
+Render → **Environment** → `INDIR_TOKEN` değerini yapıştır. (Sayfa token'ı ekrana
+bastığı için kendisi de korunuyor: Render alt alan adları Certificate Transparency
+loglarında herkese açık listelendiğinden adresin bilinmemesi koruma sayılmaz.)
+
+Parolayı girince kurulum sayfası sunucu adresini ve token'ı **önceden doldurulmuş**
+halde verir, 2. adımdaki metni tek dokunuşla kopyalarsın.
 
 Kısayollar → **+** → şu aksiyonları sırayla ekle:
 
