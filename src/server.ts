@@ -19,6 +19,14 @@ const MAX_BYTES = parseInt(process.env.MAX_BYTES ?? "", 10) || 500 * 1024 * 1024
 const MAX_DURATION_SEC = parseInt(process.env.MAX_DURATION_SEC ?? "", 10) || 900;
 const STREAM_TIMEOUT_MS = 600_000;
 
+/**
+ * Render'ın log panelinde okunacak tek satırlık kayıt. Token asla basılmaz:
+ * sorgu metnini olduğu gibi yazmak parolayı log'a düşürürdü.
+ */
+function log(...parts: unknown[]): void {
+  console.log(new Date().toISOString(), ...parts);
+}
+
 function sendJson(res: http.ServerResponse, status: number, body: unknown): void {
   const payload = JSON.stringify(body, null, 2) + "\n";
   res.writeHead(status, {
@@ -187,6 +195,22 @@ export function createServer(opts: SunucuOptions): http.Server {
       return;
     }
 
+    // İsteğin hangi aşamada bittiğini Render loglarından okuyabilmek için. "koptu"
+    // satırı özellikle önemli: iOS'un bağlantıyı düşürdüğü hâli (Shortcuts'ta
+    // "Ağ bağlantısı kesildi") sunucunun kendi hatasından ayırt ediyor.
+    const started = Date.now();
+    let finished = false;
+    const written = (): number => res.socket?.bytesWritten ?? 0;
+    res.on("finish", () => {
+      finished = true;
+      log(`← ${res.statusCode} ${route} ${Date.now() - started}ms ${written()}B`);
+    });
+    res.on("close", () => {
+      if (!finished) {
+        log(`✗ koptu ${route} ${Date.now() - started}ms ${written()}B`);
+      }
+    });
+
     if (route === "/" || route === "/kestirme") {
       const yetkili = isAuthorized(req, url, opts.token);
       const body = yetkili ? setupPage(req, opts.token) : tokenIstePage();
@@ -212,9 +236,11 @@ export function createServer(opts: SunucuOptions): http.Server {
 
     const checked = await checkUrl(rawUrlParam(url.search));
     if (!checked.ok || !checked.url) {
+      log(`→ ${route} adres reddedildi: ${checked.error}`);
       sendJson(res, 400, { ok: false, error: checked.error });
       return;
     }
+    log(`→ ${route} ${checked.url}`);
 
     if (active >= maxConcurrent) {
       sendJson(res, 429, { ok: false, error: "Sunucu meşgul, birazdan tekrar deneyin." });
@@ -231,8 +257,11 @@ export function createServer(opts: SunucuOptions): http.Server {
     };
 
     try {
+      const probeStarted = Date.now();
       const { raw, stderr } = await probe(checked.url);
+      log(`  probe ${Date.now() - probeStarted}ms sonuç=${raw ? "bulundu" : "yok"}`);
       if (!raw) {
+        log(`  yt-dlp: ${stderr.replace(/\s+/g, " ").trim().slice(0, 600)}`);
         sendJson(res, 502, { ok: false, error: translateError(stderr) });
         return;
       }
@@ -247,6 +276,7 @@ export function createServer(opts: SunucuOptions): http.Server {
       // k=hizli → sadece tek parça formatlar (anında akar, çözünürlük düşebilir)
       const fast = (url.searchParams.get("k") ?? "") === "hizli";
       const choice = pickFormat(raw, fast ? 720 : 1080);
+      log(`  mod=${choice.mode} format=${choice.formatId ?? "-"} süre=${info.duration ?? "?"}sn`);
 
       if (choice.mode === "stream" && choice.formatId) {
         await streamToResponse(res, checked.url, choice.formatId, info.title);
@@ -298,6 +328,7 @@ function streamToResponse(
   title: string
 ): Promise<void> {
   return new Promise((resolve) => {
+    const t0 = Date.now();
     const child = streamVideo(url, formatId);
     let sent = 0;
     let headersWritten = false;
@@ -319,6 +350,7 @@ function streamToResponse(
 
     child.stdout?.once("data", (first: Buffer) => {
       headersWritten = true;
+      log(`  ilk bayt ${Date.now() - t0}ms`);
       res.writeHead(200, {
         "Content-Type": "video/mp4",
         "Content-Disposition": contentDisposition(title),
@@ -356,6 +388,7 @@ function streamToResponse(
     child.on("close", () => {
       clearTimeout(timer);
       if (!headersWritten) {
+        log(`  akış baytsız bitti ${Date.now() - t0}ms: ${stderrBuf.replace(/\s+/g, " ").trim().slice(0, 600)}`);
         sendJson(res, 502, { ok: false, error: translateError(stderrBuf) });
       } else {
         res.end();
