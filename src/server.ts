@@ -14,7 +14,6 @@ import {
 } from "./downloader";
 import { SunucuOptions } from "./types";
 import { checkUrl } from "./urlguard";
-import { kestirmePlist } from "./kestirmeDosyasi";
 
 const MAX_BYTES = parseInt(process.env.MAX_BYTES ?? "", 10) || 500 * 1024 * 1024;
 const MAX_DURATION_SEC = parseInt(process.env.MAX_DURATION_SEC ?? "", 10) || 900;
@@ -147,29 +146,18 @@ function setupPage(req: http.IncomingMessage, token: string): string {
 </style></head><body>
 <h1>Video İndir — kurulum</h1>
 
-<h2>Kolay yol: hazır dosya</h2>
-<p>Önce <b>Ayarlar → Kısayollar → Güvenilmeyen Kısayollara İzin Ver</b>'i aç. Bu anahtar
-görünmüyorsa Kısayollar'da herhangi bir kestirmeyi bir kez çalıştır, sonra tekrar bak
-(Apple imzasız kestirmeleri varsayılan olarak engelliyor).</p>
-<p><a href="/kestirme.shortcut?t=${encodeURIComponent(token)}"><button>Kestirmeyi indir</button></a></p>
-<p>İnen dosyaya dokun → <b>Kısayol Ekle</b>. Sonra kestirmeye uzun bas → <b>Ayrıntılar</b> →
-<b>Paylaşım Sayfasında Göster</b> açık olsun.</p>
-<p class="uyari">Bu dosyayı test edemedim — imzasız kestirme kurulumu ancak gerçek bir
-iPhone'da denenebiliyor. Kabul edilmezse aşağıdaki elle kurulum kesin çalışır.</p>
+<p>iPhone'da <b>Kısayollar</b> → <b>+</b> ile yeni kestirme oluştur, şu 2 aksiyonu ekle.</p>
 
-<h2>Elle kurulum (2 aksiyon)</h2>
-<p><b>Kısayollar</b> → <b>+</b> ile yeni kestirme.</p>
-
-<h3>1. URL İçeriğini Al</h3>
+<h2>1. URL İçeriğini Al</h2>
 <p>Ara: <code>URL İçeriğini Al</code>. URL alanına aşağıdaki adresi yapıştır, imleç
 <b>en sondayken</b> klavye üstündeki değişken çubuğundan <b>Kestirme Girdisi</b>'ni ekle.</p>
 <pre id="u">${escapeHtml(indirUrl)}</pre>
 <button onclick="navigator.clipboard.writeText(document.getElementById('u').textContent);this.textContent='Kopyalandı ✓'">Adresi kopyala</button>
 
-<h3>2. Fotoğraf Albümüne Kaydet</h3>
+<h2>2. Fotoğraf Albümüne Kaydet</h2>
 <p>Ara: <code>Fotoğraf Albümüne Kaydet</code>. Başka ayar gerekmez.</p>
 
-<h3>Son ayar</h3>
+<h2>Son ayar</h2>
 <p>Kestirme ayarlarında (ⓘ) <b>Paylaşım Sayfasında Göster</b>'i aç, kabul edilen tür
 olarak <b>URL</b> ve <b>Metin</b> seçili olsun. Adını <b>Video İndir</b> koy.</p>
 
@@ -179,7 +167,7 @@ sunucudaki <code>INDIR_TOKEN</code> değişkenini değiştir ve 2. adımdaki met
 <h2>Kullanım</h2>
 <p>LinkedIn / Instagram / X / YouTube uygulamasında videoyu aç → <b>Paylaş</b> →
 <b>Video İndir</b>. Video Fotoğraflar'a düşer.</p>
-<p style="font-size:13px;color:#666">Fotoğraflar'a kaydedilmezse 4. aksiyonu
+<p style="font-size:13px;color:#666">Fotoğraflar'a kaydedilmezse 2. aksiyonu
 <b>Dosyayı Kaydet</b> ile değiştiren ikinci bir kestirme kur.</p>
 </body></html>
 `;
@@ -207,23 +195,6 @@ export function createServer(opts: SunucuOptions): http.Server {
         "Content-Length": Buffer.byteLength(body),
         "Cache-Control": "no-store",
         "X-Robots-Tag": "noindex",
-      });
-      res.end(body);
-      return;
-    }
-
-    // Token'ı gömdüğü için /'la aynı korumada olmalı.
-    if (route === "/kestirme.shortcut") {
-      if (!isAuthorized(req, url, opts.token)) {
-        sendJson(res, 401, { ok: false, error: "Geçersiz veya eksik token." });
-        return;
-      }
-      const body = kestirmePlist(`${baseUrl(req)}/indir?t=${encodeURIComponent(opts.token)}&url=`);
-      res.writeHead(200, {
-        "Content-Type": "application/x-plist",
-        "Content-Disposition": 'attachment; filename="Video Indir.shortcut"',
-        "Content-Length": Buffer.byteLength(body),
-        "Cache-Control": "no-store",
       });
       res.end(body);
       return;

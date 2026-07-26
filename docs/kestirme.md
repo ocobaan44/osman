@@ -51,15 +51,6 @@ loglarında herkese açık listelendiğinden adresin bilinmemesi koruma sayılma
 Parolayı girince kurulum sayfası sunucu adresini ve token'ı **önceden doldurulmuş**
 halde verir, 2. adımdaki metni tek dokunuşla kopyalarsın.
 
-### Kolay yol: hazır dosya
-
-Kurulum sayfasındaki **Kestirmeyi indir** düğmesi hazır bir `.shortcut` dosyası verir.
-Önce **Ayarlar → Kısayollar → Güvenilmeyen Kısayollara İzin Ver**'i açman gerekir; bu
-anahtar ancak en az bir kestirme çalıştırdıktan sonra beliriyor (Apple imzasız
-kestirmeleri varsayılan olarak engelliyor, imzalamak da ancak gerçek cihazda mümkün).
-
-### Elle kurulum (2 aksiyon)
-
 Kısayollar → **+** → şu aksiyonları sırayla ekle:
 
 | # | Aksiyon | Ayar |
@@ -78,8 +69,12 @@ sonra video Fotoğraflar'da.
 
 ### Yedekleme
 Kestirmeyi kurduktan sonra **Paylaş → iCloud Bağlantısını Kopyala** yap ve linki
-bir yere kaydet. Telefon değişirse tek dokunuşla geri kurarsın — sunucunun ürettiği
-dosya imzasız olduğu için her kurulumda "Güvenilmeyen Kısayollar" ayarı gerekir.
+bir yere kaydet; telefon değişirse tek dokunuşla geri gelir.
+
+Kestirmeyi hazır dosya olarak veremiyoruz: iOS imzasız `.shortcut` dosyalarının içe
+aktarılmasını tümden reddediyor ("İmzalanmamış kestirmelerin dosyalarının içe
+aktarılması desteklenmiyor") ve imzalama ancak gerçek bir cihazda paylaşarak oluyor.
+Bu yüzden ilk kurulum elle, sonraki her kurulum iCloud bağlantısıyla.
 
 ---
 

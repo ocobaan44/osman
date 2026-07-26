@@ -335,21 +335,3 @@ describe("rawUrlParam", () => {
     expect(rawUrlParam("?t=xxurl=yy&url=https://example.com/v")).toBe("https://example.com/v");
   });
 });
-
-// ── kestirme dosyası ────────────────────────────────────────────
-
-describe("GET /kestirme.shortcut", () => {
-  it("serves a plist carrying the token", async () => {
-    const res = await get(port, `/kestirme.shortcut?t=${encodeURIComponent(TOKEN)}`);
-    expect(res.status).toBe(200);
-    expect(res.headers["content-type"]).toBe("application/x-plist");
-    expect(res.body).toContain("is.workflow.actions.savetocameraroll");
-    expect(res.body).toContain(encodeURIComponent(TOKEN));
-  });
-
-  it("requires the token", async () => {
-    const res = await get(port, "/kestirme.shortcut");
-    expect(res.status).toBe(401);
-    expect(res.body).not.toContain(TOKEN);
-  });
-});
