@@ -1,0 +1,810 @@
+<title>Hafta 2 Çekim Föyü</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --paper: #f1f3f4;
+    --surface: #ffffff;
+    --surface-2: #e7ebed;
+    --ink: #171b1f;
+    --ink-2: #4b555c;
+    --ink-3: #78848b;
+    --rule: #d3dadd;
+    --accent: #9c4c08;
+    --accent-soft: #f7e6d2;
+    --danger: #9f2020;
+    --danger-soft: #f8e4e4;
+    --shadow: 0 1px 2px rgba(23, 27, 31, .06);
+    --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --body: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+    --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14181b;
+      --surface: #1b2126;
+      --surface-2: #232c32;
+      --ink: #eef2f4;
+      --ink-2: #b4c0c7;
+      --ink-3: #7f8d95;
+      --rule: #2e383f;
+      --accent: #f0a355;
+      --accent-soft: #38271594;
+      --danger: #f08d8d;
+      --danger-soft: #3a212194;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14181b;
+    --surface: #1b2126;
+    --surface-2: #232c32;
+    --ink: #eef2f4;
+    --ink-2: #b4c0c7;
+    --ink-3: #7f8d95;
+    --rule: #2e383f;
+    --accent: #f0a355;
+    --accent-soft: #38271594;
+    --danger: #f08d8d;
+    --danger-soft: #3a212194;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .35);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .wrap {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding-inline: 18px;
+    padding-block: 0 72px;
+  }
+
+  /* ---------- header ---------- */
+
+  .masthead { padding-block: 40px 28px; }
+
+  .eyebrow {
+    font-family: var(--display);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 10px;
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(2rem, 8vw, 2.9rem);
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    text-wrap: balance;
+    margin: 0 0 14px;
+  }
+
+  .standfirst {
+    color: var(--ink-2);
+    margin: 0;
+    max-width: 34rem;
+  }
+
+  /* ---------- sticky nav ---------- */
+
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-block: 10px;
+    margin-bottom: 8px;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  nav a {
+    font-family: var(--display);
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    text-decoration: none;
+    color: var(--ink-2);
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 5px 13px;
+  }
+  nav a:hover { color: var(--ink); border-color: var(--ink-3); }
+
+  /* ---------- post ---------- */
+
+  .post { padding-block: 40px 8px; border-top: 1px solid var(--rule); }
+  .post:first-of-type { border-top: 0; }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .tag {
+    font-family: var(--display);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 3px 8px;
+    white-space: nowrap;
+  }
+  .tag.date { color: var(--accent); border-color: var(--accent); }
+
+  .shot-toggle {
+    margin-inline-start: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--display);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    cursor: pointer;
+    user-select: none;
+  }
+  .shot-toggle input { accent-color: var(--accent); width: 16px; height: 16px; }
+  .shot-toggle:has(input:checked) { color: var(--accent); }
+
+  h2 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(1.4rem, 5vw, 1.8rem);
+    line-height: 1.15;
+    letter-spacing: -.015em;
+    text-wrap: balance;
+    margin: 0 0 8px;
+  }
+
+  .subject { color: var(--ink-2); margin: 0 0 22px; }
+
+  h3 {
+    font-family: var(--display);
+    font-size: .74rem;
+    font-weight: 700;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 28px 0 12px;
+  }
+
+  /* ---------- beats ---------- */
+
+  .beats {
+    position: relative;
+    margin: 0;
+    padding: 0 0 0 20px;
+    list-style: none;
+    border-left: 2px solid var(--rule);
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .beat { position: relative; }
+
+  .beat::before {
+    content: "";
+    position: absolute;
+    left: -26px;
+    top: .5em;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .mark {
+    font-family: var(--display);
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    color: var(--accent);
+    display: block;
+  }
+
+  .shot-note {
+    color: var(--ink-2);
+    font-size: .93rem;
+    margin: 2px 0 10px;
+  }
+  .shot-note em { color: var(--ink-3); font-style: italic; }
+
+  /* ---------- copy blocks ---------- */
+
+  .block {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .block-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 7px 10px 7px 12px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .block-bar span {
+    font-family: var(--display);
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  button.copy {
+    font-family: var(--display);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    color: var(--ink-2);
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 4px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  button.copy:hover { color: var(--accent); border-color: var(--accent); }
+  button.copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button.copy[data-state="done"] { color: var(--accent); border-color: var(--accent); }
+
+  pre {
+    margin: 0;
+    padding: 14px 12px;
+    font-family: var(--mono);
+    font-size: .88rem;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    color: var(--ink);
+  }
+
+  /* ---------- warning ---------- */
+
+  .check {
+    display: flex;
+    gap: 12px;
+    margin-top: 26px;
+    padding: 14px 16px;
+    background: var(--danger-soft);
+    border-left: 3px solid var(--danger);
+    border-radius: 0 5px 5px 0;
+  }
+  .check p { margin: 0; font-size: .93rem; color: var(--ink); }
+  .check strong {
+    font-family: var(--display);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--danger);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  /* ---------- footer ---------- */
+
+  .rules { margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--rule); }
+  .rules ul { margin: 0; padding-left: 20px; color: var(--ink-2); }
+  .rules li { margin-bottom: 8px; }
+  .rules li::marker { color: var(--accent); }
+  .rules p { color: var(--ink-2); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">@bmwgunu · yüz ve ses yok</p>
+    <h1>Hafta 2 Çekim Föyü</h1>
+    <p class="standfirst">Üç gönderi, kare kare. Ekranda görünecek yazılar aynen kullanılacak
+      şekilde hazır. Kopyala düğmesi yazıyı panoya alır, doğrudan Instagram'a yapıştırırsın.</p>
+  </header>
+
+  <nav aria-label="Gönderiler">
+    <a href="#p004">17 Eylül · Model seçimi</a>
+    <a href="#p005">19 Eylül · Kilometre</a>
+    <a href="#p006">21 Eylül · Bakım soruları</a>
+    <a href="#kurallar">Çekim kuralları</a>
+  </nav>
+
+  <!-- ============ p004 ============ -->
+  <section class="post" id="p004">
+    <div class="meta">
+      <span class="tag date">17 Eylül</span>
+      <span class="tag">Fotoğraf serisi · 8 kare</span>
+      <span class="tag">Kaydetme odaklı</span>
+      <label class="shot-toggle" for="done-p004">
+        <input type="checkbox" id="done-p004"> Çekildi
+      </label>
+    </div>
+
+    <h2>İlanın söylemediği beş şey</h2>
+    <p class="subject">Sekiz kare, sağa kaydırarak okunuyor. Yazıları telefonda bir düzenleme
+      uygulamasıyla fotoğrafın üstüne koyacaksın.</p>
+
+    <h3>Kareler</h3>
+    <ol class="beats">
+
+      <li class="beat">
+        <span class="mark">Kare 1 · Kapak</span>
+        <p class="shot-note">Aracın önden görüntüsü ya da motor bölmesi.</p>
+        <div class="block">
+          <div class="block-bar"><span>Kare metni</span><button class="copy" type="button">Kopyala</button></div>
+          <pre>Tek rozet, 3 farklı motor.
+Sen yanlışını alma.
+
+İkinci el BMW ilanında bakman gereken 5 şey.</pre>
+        </div>
+      </li>
+
+      <li class="beat">
+        <span class="mark">Kare 2</span>
+        <p class="shot-note">Motor bölmesi yakın plan.</p>
+        <div class="block">
+          <div class="block-bar"><span>Kare metni</span><button class="copy" type="button">Kopyala</button></div>
+          <pre>1. Rozet modeli söyler, motoru söylemez.
+
+320i'nin üç ayrı motor kuşağı var:
+2007-2013 · N46 · turbosuz
+2011 sonrası · N20 · turbo
+2015 sonrası · B48 · turbo
+
+Parça fiyatı ve bakım kalemleri aynı değil.
+İlana değil, motor koduna bak.</pre>
+        </div>
+      </li>
+
+      <li class="beat">
+        <span class="mark">Kare 3</span>
+        <p class="shot-note">Far ya da ön tampon yakın plan.</p>
+        <div class="block">
+          <div class="block-bar"><span>Kare metni</span><button class="copy" type="button">Kopyala</button></div>
+          <pre>2. Aynı kuşak, iki farklı araba.
+
+BMW kuşağın ortasında LCI yapar.
+Açılımı Life Cycle Impulse, yani kuşak içi yenileme.
+
+Genelde 6-7 yıllık kuşağın 3-4. yılında gelir
+ve çoğu zaman kozmetikle sınırlı kalmaz.
+
+İlan sahibine tek soru: LCI mi, LCI öncesi mi?</pre>
+        </div>
+      </li>
+
+      <li class="beat">
+        <span class="mark">Kare 4</span>
+        <p class="shot-note">İlan ekran görüntüsü. <em>Satıcının adı ve telefonu kadraja girmesin.</em></p>
+        <div class="block">
+          <div class="block-bar"><span>Kare metni</span><button class="copy" type="button">Kopyala</button></div>
+          <pre>3. "Full" kelimesi hiçbir şey ifade etmiyor.
+
+BMW her fabrika donanımını şase numarasına
+bir SA kodu olarak işler.
+
+Şase numarasından donanım listesi çıkar.
+xDrive, M Sport, adaptif süspansiyon: hepsi orada görünür.
+
+Satıcının iddiası değil, listenin kendisi bağlar.</pre>
+        </div>
+      </li>
+
+      <li class="beat">
+        <span class="mark">Kare 5</span>
+        <p class="shot-note">Jant ve tampon detayı.</p>
+        <div class="block">
+          <div class="block-bar"><span>Kare metni</span><button class="copy" type="button">Kopyala</button></div>
+          <pre>4. M Sport, M modeli değildir.
+
+M Sport bir donanım paketidir:
+tampon, jant, direksiyon, çoğu modelde süspansiyon.
+
+M3, M5 gibi araçlar ise ayrı geliştirilir.
+Motoru, şanzımanı, şasesi farklıdır.
+
+Rozetler benzer. Fiyatları benzemiyor.</pre>
+        </div>
+      </li>
+
+      <li class="beat">
+        <span class="mark">Kare 6</span>
+        <p class="shot-note">Açık bagaj, stepne bölmesi.</p>
+        <div class="block">
+          <div class="block-bar"><span>Kare metni</span><button class="copy" type="button">Kopyala</button></div>
+          <pre>5. Çoğu BMW stepnesiz çıkar.
+
+Yerine run-flat lastik konur: patlasa da
+sınırlı hızla bir mesafe gidebilirsin.
+
+Ama yol kenarında değiştireceğin bir tekerlek yok.
+Run-flat normal lastikten pahalı ve delindiğinde
+çoğu durumda tamir değil, değişim gündeme gelir.
+
+Bagajı aç ve bak. Sahiplik maliyetinin sessiz kalemi.</pre>
+        </div>
+      </li>
+
+      <li class="beat">
+        <span class="mark">Kare 7 · Özet</span>
+        <p class="shot-note">Düz renk zemin, sadece yazı.</p>
+        <div class="block">
+          <div class="block-bar"><span>Kare metni</span><button class="copy" type="button">Kopyala</button></div>
+          <pre>1. Motor kodu
+2. LCI mi, değil mi
+3. Şasedeki donanım listesi
+4. M Sport mu, M mi
+5. Stepne ve lastik tipi
+
+Beşi de ilana bakarken, araca gitmeden sorulur.</pre>
+        </div>
+      </li>
+
+      <li class="beat">
+        <span class="mark">Kare 8 · Kapanış</span>
+        <p class="shot-note">Kapak karesinin sade bir tekrarı.</p>
+        <div class="block">
+          <div class="block-bar"><span>Kare metni</span><button class="copy" type="button">Kopyala</button></div>
+          <pre>Bu beş soruyu ilan başında sor.
+Aracın başında sormak için geç kalmış olursun.</pre>
+        </div>
+      </li>
+
+    </ol>
+
+    <h3>Açıklama ve etiketler</h3>
+    <div class="block">
+      <div class="block-bar"><span>Instagram açıklaması</span><button class="copy" type="button">Kopyala</button></div>
+      <pre>Aynı 320i her zaman aynı araba değil.
+
+Rozet modeli söyler, motoru söylemez. Aynı isim üç farklı motor kuşağı
+taşıyabiliyor ve parça fiyatları aynı çıkmıyor. Aynı kuşağın LCI öncesi ve
+sonrası da iki farklı araç sayılır.
+
+Donanım konusunda satıcının "full" demesi bağlayıcı değil. BMW her fabrika
+donanımını şase numarasına kodluyor, liste oradan çıkıyor. M Sport bir paket,
+M ise ayrı geliştirilmiş bir araç; ikisini karıştırmak pahalı bir hata.
+
+Bir de stepne var. Çoğu BMW stepnesiz çıkıyor, yerine run-flat lastik geliyor.
+Bagajı açıp bakmak beş saniye sürüyor.
+
+Bu beşini ilana bakarken sorarsan, aracın başına gittiğinde konuşacağın şey
+kalmaz. Araba bakan birine gönder.
+
+Kaydet, ilana bakarken lazım olacak.
+
+#bmw #ikincielaraba #bmwturkiye #araçalım #otomotiv #320i #bmwe90
+#ikincielotomobil #araba #otomobil</pre>
+    </div>
+
+    <div class="check">
+      <p><strong>Çekmeden önce</strong>
+        Motor geçiş yılları pazara göre kayıyor. Bazı pazarlarda N20 daha uzun süre devam etmiş.
+        Türkiye için emin değilsen yılları sil, sadece üç ayrı motor kuşağı olduğunu söyle.
+        Mesaj rakamsız da tam olarak duruyor.</p>
+    </div>
+  </section>
+
+  <!-- ============ p005 ============ -->
+  <section class="post" id="p005">
+    <div class="meta">
+      <span class="tag date">19 Eylül</span>
+      <span class="tag">Video · 22 saniye</span>
+      <span class="tag">Paylaşım odaklı</span>
+      <label class="shot-toggle" for="done-p005">
+        <input type="checkbox" id="done-p005"> Çekildi
+      </label>
+    </div>
+
+    <h2>"Az kilometre iyidir" yanılgısı</h2>
+    <p class="subject">Yüz ve ses yok. Görüntülerin üstüne yazı geliyor. Kapanış açılışa bağlanıyor
+      ki video başa sardığında kopukluk olmasın.</p>
+
+    <h3>Sahneler</h3>
+    <ol class="beats">
+
+      <li class="beat">
+        <span class="mark">0-3 sn</span>
+        <p class="shot-note">Duran bir araç görüntüsü, üstünde tam ekran yazı.</p>
+        <div class="block">
+          <div class="block-bar"><span>Ekran metni</span><button class="copy" type="button">Kopyala</button></div>
+          <pre>Az kilometre iyi haber değil.
+Çoğu alıcı bunu tersten biliyor.</pre>
+        </div>
+      </li>
+
+      <li class="beat">
+        <span class="mark">3-8 sn</span>
+        <p class="shot-note">Yazıyı göster, sonra üstüne kırmızı çarpı koy ve bir saniye bekle.</p>
+        <div class="block">
+          <div class="block-bar"><span>Ekran metni</span><button class="copy" type="button">Kopyala</button></div>
+          <pre>"10 yaşında, sadece 60.000 km. Kelepir."</pre>
+        </div>
+      </li>
+
+      <li class="beat">
+        <span class="mark">8-18 sn</span>
+        <p class="shot-note">Dört maddeyi tek tek ekle, her birinde kesme yap. Arkada uzun süre
+          durmuş bir aracın fren diski ve kilometre göstergesi yakın planı.</p>
+        <div class="block">
+          <div class="block-bar"><span>Ekran metni</span><button class="copy" type="button">Kopyala</button></div>
+          <pre>Aşınmayı kilometre yapmaz, kullanım biçimi yapar.
+
+Duran araçta lastik ve contalar sertleşir
+Az kullanılan araçta fren disklerinde korozyon başlar
+Kısa mesafede dizel partikül filtresi kendini temizleyemez
+Kısa mesafede motor yağı yakıt ve suyla kirlenir
+
+Yılda 6.000 km demek, "az yıpranmış" demek değil.
+"Nasıl kullanıldığı sorulacak" demek.</pre>
+        </div>
+      </li>
+
+      <li class="beat">
+        <span class="mark">18-22 sn · Loop</span>
+        <p class="shot-note">Açılışa dön.</p>
+        <div class="block">
+          <div class="block-bar"><span>Ekran metni</span><button class="copy" type="button">Kopyala</button></div>
+          <pre>Az kilometre bir cevap değil.
+Sorulacak sorunun kendisi.</pre>
+        </div>
+      </li>
+
+    </ol>
+
+    <h3>Açıklama ve etiketler</h3>
+    <div class="block">
+      <div class="block-bar"><span>Instagram açıklaması</span><button class="copy" type="button">Kopyala</button></div>
+      <pre>Az kilometre iyi haber değil.
+
+Aşınmayı kilometre değil kullanım biçimi yapar. Uzun süre duran araçta lastik
+ve contalar sertleşir, fren disklerinde korozyon başlar. Kısa mesafede
+kullanılan dizelde partikül filtresi kendini temizleyecek sıcaklığa ulaşamaz.
+Kısa mesafede motor yağı da yakıt ve yoğuşma suyuyla kirlenir.
+
+10 yaşında 60.000 km, yılda 6.000 km demek. Sorulacak soru şu: bu 6.000 km
+nasıl yapıldı? Günde beş kilometre mi, ayda bir uzun yol mu? İkisi aynı araç
+değil.
+
+Cevabı satıcıdan değil kayıttan al. Muayene kayıtlarındaki kilometreler
+yıllara nasıl dağılmış, ona bak. Düz bir çizgi ile yıllarca duran bir aracın
+grafiği aynı görünmez.
+
+Yirmi yıldır bu sektörde yöneticiyim. Az kilometre en çok güvenilen ve en az
+sorgulanan rakam.
+
+Hâlâ böyle bilen birine gönder.
+
+#ikincielaraba #arabaalirken #ikincielotomobil #kilometre #ekspertiz
+#otoekspertiz #otomotiv #bmw #araçalım #araba</pre>
+    </div>
+
+    <div class="check">
+      <p><strong>Çekmeden önce</strong>
+        Dizelle ilgili madde sadece dizel araçlar için geçerli. Kareyi kısaltıp "dizel"
+        kelimesini atarsan cümle yanlış olur. Yağın kirlenmesiyle ilgili maddenin kaynağı bir yağ
+        üreticisi, yani taraf. Teyit edemezsen o maddeyi çıkar, gönderi üç madde üzerinde de duruyor.</p>
+    </div>
+  </section>
+
+  <!-- ============ p006 ============ -->
+  <section class="post" id="p006">
+    <div class="meta">
+      <span class="tag date">21 Eylül</span>
+      <span class="tag">Video · 20 saniye</span>
+      <span class="tag">Yorum odaklı</span>
+      <label class="shot-toggle" for="done-p006">
+        <input type="checkbox" id="done-p006"> Çekildi
+      </label>
+    </div>
+
+    <h2>En çok sorulan üç bakım sorusu</h2>
+    <p class="subject">Üçüncü soru en başta soruluyor ama cevabı sona saklanıyor. Merak boşluğunu
+      açık tutan şey bu, sırayı bozma.</p>
+
+    <h3>Sahneler</h3>
+    <ol class="beats">
+
+      <li class="beat">
+        <span class="mark">0-3 sn</span>
+        <p class="shot-note">Tam ekran yazı. <em>Cevabı burada verme.</em></p>
+        <div class="block">
+          <div class="block-bar"><span>Ekran metni</span><button class="copy" type="button">Kopyala</button></div>
+          <pre>3. soru: senin şanzıman yağın gerçekten ömür boyu mu?</pre>
+        </div>
+      </li>
+
+      <li class="beat">
+        <span class="mark">3-8 sn</span>
+        <p class="shot-note">Arkada balata ve sensör kablosu yakın planı.</p>
+        <div class="block">
+          <div class="block-bar"><span>Ekran metni</span><button class="copy" type="button">Kopyala</button></div>
+          <pre>1. Balata değişince sensör de değişir mi?
+
+Evet. Fren balata aşınma sensörü tek kullanımlıktır.
+Uyarı verdikten sonra tekrar kullanılmaz, sıfırlanmaz.
+Faturada ayrı kalem görürsen sebebi bu.</pre>
+        </div>
+      </li>
+
+      <li class="beat">
+        <span class="mark">8-13 sn</span>
+        <p class="shot-note">Arkada ekrandaki yağ seviyesi göstergesi.</p>
+        <div class="block">
+          <div class="block-bar"><span>Ekran metni</span><button class="copy" type="button">Kopyala</button></div>
+          <pre>2. Yağ çubuğu neden yok?
+
+2005-2006 sonrası BMW'lerde yerini
+karterdeki elektronik seviye sensörü aldı.
+Seviyeyi çubukla değil ekrandan okursun.</pre>
+        </div>
+      </li>
+
+      <li class="beat">
+        <span class="mark">13-18 sn</span>
+        <p class="shot-note">Şimdi açılıştaki sorunun cevabı geliyor.</p>
+        <div class="block">
+          <div class="block-bar"><span>Ekran metni</span><button class="copy" type="button">Kopyala</button></div>
+          <pre>3. Şanzıman yağı ömür boyu mu?
+
+"Ömür boyu" ifadesi şanzımanın tasarım ömrünü anlatır.
+Aracın ömrünü değil.
+
+ZF'nin kendi önerisi: normal kullanımda referans
+150.000 km ya da 8 yıl. Ağır kullanımda 80.000-120.000 km.</pre>
+        </div>
+      </li>
+
+      <li class="beat">
+        <span class="mark">18-20 sn · Loop</span>
+        <p class="shot-note">İzleyiciye dön.</p>
+        <div class="block">
+          <div class="block-bar"><span>Ekran metni</span><button class="copy" type="button">Kopyala</button></div>
+          <pre>Sıradaki soru senden.</pre>
+        </div>
+      </li>
+
+    </ol>
+
+    <h3>Açıklama ve etiketler</h3>
+    <div class="block">
+      <div class="block-bar"><span>Instagram açıklaması</span><button class="copy" type="button">Kopyala</button></div>
+      <pre>Şanzıman yağı gerçekten ömür boyu mu?
+
+En çok sorulan üç bakım sorusu ve net cevapları. Aynı soruyu soran birine
+gönder.
+
+1. Balata değişince sensör de değişir. Fren balata aşınma sensörü tek
+kullanımlıktır, uyarı verdikten sonra tekrar takılmaz. Faturadaki ayrı kalemin
+sebebi bu.
+
+2. Yağ çubuğu 2005-2006 sonrası BMW'lerde yerini karterdeki elektronik seviye
+sensörüne bıraktı. Seviyeyi ekrandan okursun.
+
+3. "Ömür boyu" şanzımanın tasarım ömrünü anlatır, aracın ömrünü değil. ZF
+normal kullanımda 150.000 km ya da 8 yılı referans veriyor, ağır kullanımda
+80.000-120.000 km aralığını öneriyor. Aracının kendi kullanım kılavuzu ne
+diyorsa esas o.
+
+Bakım maliyetini düşüren şey ucuz servis değil, neyin ne zaman gerektiğini
+bilmek.
+
+Sıradaki soruyu yorumda sor.
+
+#bmw #araçbakımı #periyodikbakım #şanzıman #bmwservis #otomotiv
+#motoryagi #bmwturkiye #araba #otomobil</pre>
+    </div>
+
+    <div class="check">
+      <p><strong>Çekmeden önce</strong>
+        Bu haftanın en hassas yeri şanzıman rakamları. İki ayrı kullanım koşulu var ve
+        karıştırılması kolay. Teyit edemezsen rakamları tamamen sil, sadece "ömür boyu ifadesi
+        şanzımanın tasarım ömrünü anlatır, kullanım kılavuzuna bak" de. Ayrıca şanzımanı ZF
+        üretiyor ama bakım talimatını araç üreticisi yazar; "ZF'nin önerisi" ile "BMW'nin
+        talimatı" ayrımını bozma.</p>
+    </div>
+  </section>
+
+  <!-- ============ kurallar ============ -->
+  <section class="rules" id="kurallar">
+    <h3>Üç gönderi için de geçerli</h3>
+    <ul>
+      <li>Hiçbir kare iş yerinde çekilmeyecek. Tabela, logo, kurumsal kıyafet ve showroom
+        düzeni kadraja girmeyecek.</li>
+      <li>Plaka, isim, şase numarası ve müşteriye ait hiçbir evrak görünmeyecek.</li>
+      <li>Motor kodunu göstermek için ruhsat çekmen gerekmiyor, ekran üstü yazı yeter.</li>
+      <li>Yüz ve ses yok. Anlatım tamamen ekran üstü yazı ve araç görüntüsü üzerinden.</li>
+    </ul>
+    <p>Yayından 48 saat sonra Instagram'ın kendi istatistiklerinden erişim, paylaşım, kaydetme ve
+      ortalama izlenme rakamlarını al. Sisteme girdiğinde hangi kalıbın tuttuğunu söyleyecek.
+      Anlamlı yorum için en az on iki gönderilik veri gerekiyor, ondan önce strateji değiştirme.</p>
+  </section>
+
+</div>
+
+<script>
+  (function () {
+    document.querySelectorAll("button.copy").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var pre = btn.closest(".block").querySelector("pre");
+        var text = pre.textContent;
+
+        function mark(label) {
+          btn.textContent = label;
+          btn.dataset.state = "done";
+          setTimeout(function () {
+            btn.textContent = "Kopyala";
+            delete btn.dataset.state;
+          }, 2000);
+        }
+
+        function selectInstead() {
+          try {
+            var range = document.createRange();
+            range.selectNodeContents(pre);
+            var sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            mark("Metni seçtim");
+          } catch (e) {
+            mark("Elle seç");
+          }
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(function () {
+            mark("Kopyalandı");
+          }).catch(selectInstead);
+        } else {
+          selectInstead();
+        }
+      });
+    });
+
+    document.querySelectorAll(".shot-toggle input").forEach(function (box) {
+      var key = "cekim-foyu-h2-" + box.id;
+      try {
+        if (localStorage.getItem(key) === "1") box.checked = true;
+      } catch (e) {}
+      box.addEventListener("change", function () {
+        try {
+          localStorage.setItem(key, box.checked ? "1" : "0");
+        } catch (e) {}
+      });
+    });
+  })();
+</script>
