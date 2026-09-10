@@ -2,6 +2,7 @@ import { analyzeHook, fillTemplate, suggestHookIdeas, suggestHooks } from "../in
 import { scoreDraft, weakestDimensions } from "../instagram/score";
 import { buildPlan, ideaToDraft } from "../instagram/plan";
 import { analyzePost, buildReport, median } from "../instagram/analytics";
+import { checkCompliance, isPublishable, normalize } from "../instagram/compliance";
 import { checkPillars, upsertPost } from "../instagram/config";
 import { Draft, PostMetrics, Profile } from "../instagram/types";
 
@@ -11,6 +12,7 @@ const profile: Profile = {
   followers: 2000,
   postsPerWeek: 5,
   pillars: ["araç seçimi", "bakım maliyeti", "perde arkası"],
+  productionMode: "onCamera",
 };
 
 describe("analyzeHook", () => {
@@ -337,9 +339,79 @@ describe("bmwgunu profili", () => {
       followers: 1000,
       postsPerWeek: 3,
       pillars,
+      productionMode: "faceless",
     };
     for (const idea of buildPlan(profile, { weeks: 4, startDate: new Date("2026-09-10") })) {
       expect(["A", "B"]).toContain(scoreDraft(ideaToDraft(idea)).grade);
     }
+  });
+});
+
+describe("checkCompliance", () => {
+  const base: Draft = { hook: "x", format: "reel", driver: "share" };
+
+  it("temiz taslakta uyarı üretmez", () => {
+    const issues = checkCompliance({
+      ...base,
+      hook: "İkinci el alırken çoğu kişi bu belgeyi istemiyor",
+      caption: "Ekspertiz raporunda bakılacak üç kalem var.",
+      cta: "Kaydet, lazım olacak.",
+    });
+    expect(issues).toEqual([]);
+    expect(isPublishable(issues)).toBe(true);
+  });
+
+  it("işveren adını kırmızı olarak yakalar", () => {
+    const issues = checkCompliance({ ...base, caption: "Borusan tarafında böyle olmuyor" });
+    expect(issues).toHaveLength(1);
+    expect(issues[0].level).toBe("red");
+    expect(isPublishable(issues)).toBe(false);
+  });
+
+  it("Türkçe büyük harf ve aksan farkını atlar", () => {
+    expect(checkCompliance({ ...base, hook: "İNCİROĞLU" })[0]?.rule).toBe("İşveren adı");
+  });
+
+  it("plakayı yakalar", () => {
+    const issues = checkCompliance({ ...base, caption: "Aracın plakası 38 ABC 123 idi" });
+    expect(issues.some((i) => i.rule === "Plaka" && i.level === "red")).toBe(true);
+  });
+
+  it("iç veri jargonunu yakalar", () => {
+    expect(checkCompliance({ ...base, caption: "CSI puanımız yükseldi" })[0].level).toBe("red");
+  });
+
+  it("kaynaksız fiyat iddiasını sarı olarak işaretler", () => {
+    const issues = checkCompliance({ ...base, caption: "Bu araç 1.250.000 TL" });
+    expect(issues.some((i) => i.rule === "Fiyat iddiası" && i.level === "yellow")).toBe(true);
+    expect(isPublishable(issues)).toBe(true);
+  });
+
+  it("beats içindeki ihlali de görür", () => {
+    const issues = checkCompliance({ ...base, beats: ["Kare 1: showroom'a bekliyoruz"] });
+    expect(issues.some((i) => i.level === "red")).toBe(true);
+  });
+
+  it("normalize Türkçe karakterleri sadeleştirir", () => {
+    expect(normalize("İŞÇİ ÖĞÜT")).toBe("isci ogut");
+  });
+});
+
+describe("faceless plan", () => {
+  it("yüzsüz modda kameraya konuşma yönergesi vermez", () => {
+    const faceless: Profile = { ...profile, productionMode: "faceless" };
+    const beats = buildPlan(faceless, { weeks: 3, startDate: new Date("2026-09-10") })
+      .flatMap((i) => i.beats)
+      .join(" ");
+    expect(beats).not.toMatch(/kameraya|kamera önünde/i);
+  });
+
+  it("kamera modunda akış değişir", () => {
+    const options = { weeks: 2, startDate: new Date("2026-09-10") };
+    const onCam = buildPlan(profile, options).map((i) => i.beats.join("|"));
+    const off = buildPlan({ ...profile, productionMode: "faceless" }, options).map((i) =>
+      i.beats.join("|")
+    );
+    expect(onCam).not.toEqual(off);
   });
 });

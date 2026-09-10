@@ -8,5 +8,6 @@
     "BMW bakım maliyeti",
     "BMW servisi",
     "BMW model seçimi"
-  ]
+  ],
+  "productionMode": "faceless"
 }

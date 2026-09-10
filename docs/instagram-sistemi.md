@@ -48,6 +48,20 @@ cümlenin ortasına gömer, o yüzden uzun bir tema adı devrik cümle üretir.
 "servis ve satış sonrası perde arkası" yerine "BMW servisi" yaz; anlatmak
 istediğin açıyı zaten arketip getiriyor. `init` sınırı aşan temaları uyarır.
 
+### Çekim biçimi
+
+`--production-mode faceless` verilirse plan, yüz ve ses kullanmayan bir üretim
+için sahne akışı yazar: anlatım kameraya konuşmak yerine ekran üstü yazıya,
+araç görüntüsüne ve carousel karelerine taşınır. Varsayılan `onCamera`.
+
+### İçerik sınırları
+
+`viral score` her taslağı `docs/icerik-sinirlari.md` dosyasındaki kırmızı
+çizgilere karşı da denetler: işveren adı, iç veri, plaka, telefon, bayine
+yönlendirme kırmızıdır; kaynaksız arıza ve fiyat iddiası sarıdır. Denetim
+kelime tabanlıdır, niyeti anlamaz. Temiz çıkması "risk yok" demek değil,
+"bilinen tuzaklara düşmemiş" demektir.
+
 Kısayol olarak `npm run viral -- <komut>` de kullanılabilir.
 
 ## Haftalık döngü

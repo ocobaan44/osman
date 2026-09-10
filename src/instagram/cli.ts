@@ -14,9 +14,10 @@ import {
 } from "./config";
 import { suggestHookIdeas } from "./hooks";
 import { buildPlan, ideaToDraft } from "./plan";
-import { renderPlan, renderReport, renderScore } from "./render";
+import { renderCompliance, renderPlan, renderReport, renderScore } from "./render";
+import { checkCompliance, isPublishable } from "./compliance";
 import { scoreDraft } from "./score";
-import { Driver, Format, PostMetrics, Profile } from "./types";
+import { Driver, Format, PostMetrics, ProductionMode, Profile } from "./types";
 
 const FORMATS: Format[] = ["reel", "carousel", "single", "story"];
 const DRIVERS: Driver[] = ["share", "save", "comment", "watch"];
@@ -47,6 +48,11 @@ function print(text: string): void {
   process.stdout.write(text);
 }
 
+function parseProductionMode(value: string): ProductionMode {
+  if (value === "onCamera" || value === "faceless") return value;
+  throw new Error(`Geçersiz çekim biçimi: ${value}. onCamera veya faceless kullan.`);
+}
+
 function printJson(value: unknown): void {
   print(`${JSON.stringify(value, null, 2)}\n`);
 }
@@ -64,6 +70,7 @@ export function registerInstagramCommands(program: Command): void {
     .option("--followers <n>", "Takipçi sayısı")
     .option("--posts-per-week <n>", "Haftalık gönderi sayısı")
     .option("--pillars <list>", "Virgülle ayrılmış ana temalar")
+    .option("--production-mode <mode>", "Çekim biçimi: onCamera|faceless")
     .action((opts) => {
       const existing = loadProfile(process.cwd());
       const profile: Profile = {
@@ -79,6 +86,9 @@ export function registerInstagramCommands(program: Command): void {
         pillars: opts.pillars
           ? (opts.pillars as string).split(",").map((p) => p.trim()).filter(Boolean)
           : existing.pillars,
+        productionMode: opts.productionMode
+          ? parseProductionMode(opts.productionMode as string)
+          : existing.productionMode,
       };
 
       const file = saveProfile(process.cwd(), profile);
@@ -143,7 +153,7 @@ export function registerInstagramCommands(program: Command): void {
     .option("--no-captions", "Ekranda yanık altyazı yok")
     .option("--json", "JSON olarak yaz", false)
     .action((opts) => {
-      const result = scoreDraft({
+      const draft = {
         hook: opts.hook as string,
         format: parseFormat(opts.format as string),
         driver: parseDriver(opts.driver as string),
@@ -155,14 +165,17 @@ export function registerInstagramCommands(program: Command): void {
         beats: opts.beats ? (opts.beats as string).split("|").map((b) => b.trim()) : undefined,
         loops: opts.loop as boolean,
         captionsBurned: opts.captions as boolean,
-      });
+      };
+      const result = scoreDraft(draft);
+      const issues = checkCompliance(draft);
 
       if (opts.json) {
-        printJson(result);
+        printJson({ ...result, compliance: { publishable: isPublishable(issues), issues } });
         return;
       }
 
       print(renderScore(result));
+      print(renderCompliance(issues));
     });
 
   viral

@@ -1,5 +1,6 @@
 // Terminal çıktısı biçimlendirme.
 
+import { ComplianceIssue, isPublishable } from "./compliance";
 import { weakestDimensions } from "./score";
 import { AccountReport, ContentIdea, ScoreResult } from "./types";
 
@@ -96,5 +97,29 @@ export function renderReport(report: AccountReport): string {
     lines.push(`  - ${action}`);
   }
 
+  return `${lines.join("\n")}\n`;
+}
+
+/**
+ * Sınır denetimi sonucunu yazar. Temiz çıkan taslakta bile tek satırlık bir
+ * hatırlatma bırakıyoruz: denetim kelime tabanlı, son karar kullanıcıda.
+ */
+export function renderCompliance(issues: ComplianceIssue[]): string {
+  if (issues.length === 0) {
+    return "\nSINIR DENETİMİ: temiz. Yine de gözden geçir; denetim kelime tabanlı.\n";
+  }
+
+  const lines = ["", "SINIR DENETİMİ"];
+  for (const issue of issues) {
+    const tag = issue.level === "red" ? "KIRMIZI" : "SARI";
+    lines.push(`  [${tag}] ${issue.rule} — "${issue.match}"`);
+    lines.push(`          ${issue.advice}`);
+  }
+
+  lines.push(
+    isPublishable(issues)
+      ? "  Kırmızı ihlal yok. Sarı uyarıların şartını sağlarsan yayınlayabilirsin."
+      : "  Kırmızı ihlal var. Bu haliyle yayınlama."
+  );
   return `${lines.join("\n")}\n`;
 }

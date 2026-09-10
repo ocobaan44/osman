@@ -6,6 +6,12 @@ export type Format = "reel" | "carousel" | "single" | "story";
 /** Bir gönderinin hedeflediği ana davranış. Erişimi asıl bu belirler. */
 export type Driver = "share" | "save" | "comment" | "watch";
 
+/**
+ * Gönderinin nasıl çekileceği. Yüz ve ses kullanılmayan üretimde sahne
+ * akışı tamamen değişir: anlatım ekran üstü yazıya taşınır.
+ */
+export type ProductionMode = "onCamera" | "faceless";
+
 /** Kullanıcının hesap profili. Öneriler bu bağlama göre şekillenir. */
 export interface Profile {
   handle: string;
@@ -16,6 +22,8 @@ export interface Profile {
   postsPerWeek: number;
   /** Hesabın tekrar tekrar döndüğü ana temalar. */
   pillars: string[];
+  /** Çekim biçimi. Plan sahne akışını buna göre üretir. */
+  productionMode: ProductionMode;
 }
 
 /** Planlanmış ama henüz yayınlanmamış bir gönderi fikri. */

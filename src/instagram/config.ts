@@ -13,6 +13,7 @@ export const DEFAULT_PROFILE: Profile = {
   followers: 1000,
   postsPerWeek: 5,
   pillars: ["araç seçimi", "satın alma tuzakları", "bakım ve maliyet", "perde arkası"],
+  productionMode: "onCamera",
 };
 
 function resolve(root: string, file: string): string {
