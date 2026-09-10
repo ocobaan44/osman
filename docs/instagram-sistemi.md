@@ -43,6 +43,11 @@ Bu komut `instagram.config.json` dosyasını oluşturur. Temalar (`pillars`) en
 önemli ayardır: hesabın tekrar tekrar döndüğü konulardır ve algoritmaya hesabın
 ne hakkında olduğunu onlar öğretir. Üç ila beş tane yeter.
 
+Tema adlarını **kısa tut: en fazla 3 kelime**. Hook şablonları tema adını
+cümlenin ortasına gömer, o yüzden uzun bir tema adı devrik cümle üretir.
+"servis ve satış sonrası perde arkası" yerine "BMW servisi" yaz; anlatmak
+istediğin açıyı zaten arketip getiriyor. `init` sınırı aşan temaları uyarır.
+
 Kısayol olarak `npm run viral -- <komut>` de kullanılabilir.
 
 ## Haftalık döngü

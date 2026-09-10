@@ -2,7 +2,7 @@ import { analyzeHook, fillTemplate, suggestHookIdeas, suggestHooks } from "../in
 import { scoreDraft, weakestDimensions } from "../instagram/score";
 import { buildPlan, ideaToDraft } from "../instagram/plan";
 import { analyzePost, buildReport, median } from "../instagram/analytics";
-import { upsertPost } from "../instagram/config";
+import { checkPillars, upsertPost } from "../instagram/config";
 import { Draft, PostMetrics, Profile } from "../instagram/types";
 
 const profile: Profile = {
@@ -298,5 +298,48 @@ describe("upsertPost", () => {
     const original = [post];
     upsertPost(original, { ...post, id: "y" });
     expect(original).toHaveLength(1);
+  });
+});
+
+describe("checkPillars", () => {
+  it("kısa tema adlarını uyarısız geçirir", () => {
+    expect(checkPillars(["ikinci el BMW", "BMW servisi"])).toEqual([]);
+  });
+
+  it("hook cümlesini bozacak kadar uzun temayı uyarır", () => {
+    const warnings = checkPillars(["servis ve satış sonrası perde arkası"]);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain("servis ve satış sonrası perde arkası");
+  });
+
+  it("sadece sorunlu temaları bildirir", () => {
+    const warnings = checkPillars(["ikinci el BMW", "çok uzun bir tema adı buraya sığmaz"]);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain("çok uzun");
+  });
+
+  it("uzun tek kelimeyi de karakter sınırından yakalar", () => {
+    expect(checkPillars(["a".repeat(30)])).toHaveLength(1);
+  });
+});
+
+describe("bmwgunu profili", () => {
+  const pillars = ["ikinci el BMW", "BMW bakım maliyeti", "BMW servisi", "BMW model seçimi"];
+
+  it("gerçek profilin temaları hook şablonlarına sığar", () => {
+    expect(checkPillars(pillars)).toEqual([]);
+  });
+
+  it("üretilen her fikir en az B alır", () => {
+    const profile: Profile = {
+      handle: "bmwgunu",
+      niche: "BMW sahipliği ve ikinci el otomotiv",
+      followers: 1000,
+      postsPerWeek: 3,
+      pillars,
+    };
+    for (const idea of buildPlan(profile, { weeks: 4, startDate: new Date("2026-09-10") })) {
+      expect(["A", "B"]).toContain(scoreDraft(ideaToDraft(idea)).grade);
+    }
   });
 });

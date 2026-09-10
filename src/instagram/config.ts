@@ -57,3 +57,24 @@ export function upsertPost(posts: PostMetrics[], post: PostMetrics): PostMetrics
   next[index] = post;
   return next;
 }
+
+/**
+ * Hook şablonları tema adını cümlenin ortasına gömer. Uzun ya da yan cümle
+ * içeren tema adları bu şablonlarda devrik cümle üretir, o yüzden init
+ * sırasında uyarıyoruz. Hata değil: kullanıcı yine de devam edebilir.
+ */
+export const PILLAR_MAX_WORDS = 3;
+export const PILLAR_MAX_CHARS = 22;
+
+export function checkPillars(pillars: string[]): string[] {
+  return pillars.flatMap((pillar) => {
+    const words = pillar.trim().split(/\s+/).length;
+    if (words > PILLAR_MAX_WORDS || pillar.length > PILLAR_MAX_CHARS) {
+      return [
+        `"${pillar}" hook şablonlarına uzun geliyor (${words} kelime, ${pillar.length} karakter). ` +
+          `En fazla ${PILLAR_MAX_WORDS} kelime / ${PILLAR_MAX_CHARS} karakter önerilir, yoksa hook cümlesi devrik olur.`,
+      ];
+    }
+    return [];
+  });
+}

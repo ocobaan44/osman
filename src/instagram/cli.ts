@@ -8,6 +8,7 @@ import {
   loadProfile,
   POSTS_FILE,
   savePosts,
+  checkPillars,
   saveProfile,
   upsertPost,
 } from "./config";
@@ -83,6 +84,12 @@ export function registerInstagramCommands(program: Command): void {
       const file = saveProfile(process.cwd(), profile);
       print(`Profil yazıldı: ${file}\n`);
       printJson(profile);
+
+      const warnings = checkPillars(profile.pillars);
+      if (warnings.length > 0) {
+        print("\nUYARI\n");
+        for (const warning of warnings) print(`  - ${warning}\n`);
+      }
     });
 
   viral
