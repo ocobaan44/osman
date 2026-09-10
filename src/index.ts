@@ -2,6 +2,7 @@
 import { Command } from "commander";
 import { listAgents, listSessionAgents } from "./agents";
 import { printStatusLine } from "./statusline";
+import { registerInstagramCommands } from "./instagram/cli";
 
 const program = new Command();
 
@@ -43,5 +44,7 @@ program
     const cwd = (opts.cwd as string | undefined) ?? process.cwd();
     listSessionAgents(cwd, { json: opts.json as boolean, all: opts.all as boolean });
   });
+
+registerInstagramCommands(program);
 
 program.parse(process.argv);

@@ -12,7 +12,8 @@
     "dev": "ts-node src/index.ts",
     "test": "jest",
     "test:e2e": "playwright test",
-    "kiralik": "ts-node scripts/kayseri-kiralik.ts"
+    "kiralik": "ts-node scripts/kayseri-kiralik.ts",
+    "viral": "ts-node src/index.ts viral"
   },
   "dependencies": {
     "commander": "^11.0.0"
