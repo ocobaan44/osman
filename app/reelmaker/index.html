@@ -1,0 +1,1695 @@
+<title>Reel Atölyesi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+  :root{
+    --ink:#0A0A0E;
+    --stage:#050507;
+    --surface:#15151D;
+    --surface-2:#1E1E28;
+    --line:#2B2B38;
+    --line-soft:#232330;
+    --text:#F3F1F6;
+    --muted:#95919F;
+    --dim:#6A6676;
+    --hot:#FF3D74;
+    --amber:#FF9A3D;
+    --violet:#8A6BFF;
+    --ok:#38D9A9;
+    --font-display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+    --font-body:"Manrope","Helvetica Neue",system-ui,sans-serif;
+    --font-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html{height:100%;box-sizing:border-box}
+  body{
+    height:100%;margin:0;background:var(--ink);color:var(--text);
+    font-family:var(--font-body);font-size:14px;line-height:1.45;
+    -webkit-font-smoothing:antialiased;overscroll-behavior:none;
+  }
+  button,input,select{font-family:inherit;color:inherit}
+  button{cursor:pointer;border:0;background:none}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:8px}
+
+  #app{height:100%;display:flex;flex-direction:column;min-height:0;background:var(--ink)}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    display:flex;align-items:center;gap:12px;
+    padding:10px 16px;border-bottom:1px solid var(--line-soft);
+    background:var(--ink);flex:0 0 auto;
+  }
+  .brand{display:flex;align-items:baseline;gap:7px;margin-right:auto;min-width:0}
+  .brand b{
+    font-family:var(--font-display);font-weight:800;font-size:17px;letter-spacing:-.02em;
+    background:linear-gradient(94deg,var(--hot),var(--amber));
+    -webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap;
+  }
+  .brand span{font-family:var(--font-mono);font-size:10px;color:var(--dim);letter-spacing:.06em}
+  .ratios{display:flex;gap:4px;background:var(--surface);padding:3px;border-radius:999px;border:1px solid var(--line-soft)}
+  .ratios button{
+    font-family:var(--font-mono);font-size:10.5px;color:var(--muted);
+    padding:5px 9px;border-radius:999px;letter-spacing:.02em;
+  }
+  .ratios button[aria-pressed="true"]{background:var(--surface-2);color:var(--text);box-shadow:inset 0 0 0 1px var(--line)}
+
+  /* ---------- stage ---------- */
+  .stage{
+    flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;
+    padding:14px 16px;background:
+      radial-gradient(120% 80% at 50% 0%,#141420 0%,var(--stage) 62%);
+    position:relative;
+  }
+  .frame{position:relative;height:100%;max-width:100%;display:flex}
+  #cv{
+    height:100%;width:auto;max-width:100%;display:block;border-radius:14px;
+    background:#000;box-shadow:0 18px 48px -18px #000, 0 0 0 1px var(--line-soft);
+  }
+  .empty{
+    position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
+    gap:10px;text-align:center;padding:24px;border-radius:14px;
+  }
+  .empty.on{display:flex}
+  .empty p{margin:0;color:var(--muted);max-width:26ch}
+  .badge-demo{
+    position:absolute;top:7px;left:7px;z-index:2;
+    font-family:var(--font-mono);font-size:8px;letter-spacing:.07em;line-height:1;
+    background:#0C0C12AA;border:1px solid #FFFFFF1F;color:#C9C5D2;
+    padding:3px 6px;border-radius:999px;backdrop-filter:blur(6px);
+  }
+  .badge-demo[hidden]{display:none!important}
+
+  /* ---------- transport ---------- */
+  .transport{
+    flex:0 0 auto;display:flex;align-items:center;gap:12px;
+    padding:10px 16px;border-top:1px solid var(--line-soft);background:var(--ink);
+  }
+  .play{
+    width:42px;height:42px;flex:0 0 auto;border-radius:50%;
+    background:linear-gradient(140deg,var(--hot),var(--amber));
+    display:grid;place-items:center;color:#14040A;
+    box-shadow:0 6px 18px -8px var(--hot);
+  }
+  .play:disabled{background:var(--surface-2);color:var(--dim);box-shadow:none}
+  .play svg{width:17px;height:17px;display:block}
+  .tc{font-family:var(--font-mono);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;flex:0 0 auto}
+  .tc b{color:var(--text);font-weight:500}
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;margin:0;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:var(--surface-2)}
+  input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:var(--surface-2)}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--text);
+    margin-top:-5.5px;box-shadow:0 0 0 3px #0A0A0E;
+  }
+  input[type=range]::-moz-range-thumb{width:15px;height:15px;border:0;border-radius:50%;background:var(--text)}
+  #scrub{flex:1 1 auto;min-width:0}
+
+  /* ---------- panels ---------- */
+  .panels{flex:0 0 auto;background:var(--surface);border-top:1px solid var(--line);overflow:hidden}
+  .panel{display:none;padding:14px 16px 16px;max-height:44vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .panel.on{display:block}
+  .row{display:flex;flex-wrap:wrap;gap:8px}
+  .lbl{
+    display:block;font-family:var(--font-mono);font-size:9.5px;letter-spacing:.11em;
+    text-transform:uppercase;color:var(--dim);margin:0 0 8px;
+  }
+  .lbl + .lbl,.group + .group{margin-top:0}
+  .group{margin-bottom:16px}
+  .group:last-child{margin-bottom:0}
+  .hint{margin:8px 0 0;color:var(--dim);font-size:11.5px;line-height:1.5}
+
+  .chip{
+    padding:8px 12px;border-radius:10px;background:var(--surface-2);
+    border:1px solid var(--line-soft);color:var(--muted);font-size:12.5px;font-weight:500;
+  }
+  .chip[aria-pressed="true"]{
+    background:#2A1B24;border-color:var(--hot);color:var(--text);
+  }
+  .tpl{
+    display:flex;flex-direction:column;gap:2px;align-items:flex-start;
+    padding:9px 11px;border-radius:12px;background:var(--surface-2);
+    border:1px solid var(--line-soft);min-width:96px;flex:1 1 96px;
+  }
+  .tpl b{font-family:var(--font-display);font-weight:600;font-size:13px;color:var(--text);letter-spacing:-.01em}
+  .tpl i{font-style:normal;font-family:var(--font-mono);font-size:9.5px;color:var(--dim)}
+  .tpl[aria-pressed="true"]{border-color:var(--hot);background:linear-gradient(150deg,#2C1B25,#1E1E28)}
+  .tpl[aria-pressed="true"] i{color:var(--hot)}
+
+  .slider-row{display:flex;align-items:center;gap:12px}
+  .slider-row input[type=range]{flex:1 1 auto}
+  .val{font-family:var(--font-mono);font-size:11px;color:var(--text);min-width:58px;text-align:right;font-variant-numeric:tabular-nums}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:7px;
+    padding:10px 14px;border-radius:11px;font-size:13px;font-weight:700;
+    background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+  }
+  .btn.primary{background:linear-gradient(140deg,var(--hot),var(--amber));color:#170509;border-color:transparent}
+  .btn.wide{width:100%}
+  .btn:disabled{opacity:.45}
+  .btn.ghost{background:transparent;color:var(--muted)}
+
+  /* media strip */
+  .strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+  .thumb{
+    position:relative;flex:0 0 auto;width:62px;height:88px;border-radius:9px;overflow:hidden;
+    background:var(--surface-2);border:1px solid var(--line-soft);
+  }
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .thumb .n{
+    position:absolute;top:3px;left:3px;font-family:var(--font-mono);font-size:9px;
+    background:#000A;padding:1px 4px;border-radius:5px;color:#fff;
+  }
+  .thumb .acts{position:absolute;left:0;right:0;bottom:0;display:flex;background:#000B}
+  .thumb .acts button{flex:1;padding:4px 0;font-size:11px;color:#fff;line-height:1}
+  .thumb .acts button:active{background:#fff2}
+  .addtile{
+    flex:0 0 auto;width:62px;height:88px;border-radius:9px;border:1px dashed var(--line);
+    background:transparent;color:var(--muted);font-size:22px;display:grid;place-items:center;
+  }
+
+  /* export */
+  .meter{height:5px;border-radius:3px;background:var(--surface-2);overflow:hidden;margin-top:10px}
+  .meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--hot),var(--amber));transition:width .15s linear}
+  #result{margin-top:14px}
+  #result video{width:100%;max-width:210px;border-radius:12px;display:block;background:#000;border:1px solid var(--line)}
+  .status{margin-top:10px;font-size:12px;color:var(--muted);min-height:1.2em}
+  .status.err{color:#FF7A8F}
+  .status.ok{color:var(--ok)}
+  .summary{
+    display:flex;gap:14px;flex-wrap:wrap;font-family:var(--font-mono);font-size:11px;color:var(--muted);
+    padding:10px 12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line-soft);
+  }
+  .summary b{color:var(--text);font-weight:500}
+
+  /* text inputs */
+  .field{
+    width:100%;padding:10px 12px;border-radius:10px;background:var(--surface-2);
+    border:1px solid var(--line);color:var(--text);font-size:14px;
+  }
+  .field::placeholder{color:var(--dim)}
+
+  /* ---------- tab bar ---------- */
+  .tabs{
+    flex:0 0 auto;display:flex;border-top:1px solid var(--line);background:var(--ink);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  .tabs button{
+    flex:1;padding:9px 2px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;
+    color:var(--dim);font-size:10px;font-weight:700;letter-spacing:.01em;
+    border-top:2px solid transparent;margin-top:-1px;
+  }
+  .tabs button svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .tabs button[aria-selected="true"]{color:var(--text);border-top-color:var(--hot)}
+
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  #exportCanvas{position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0;pointer-events:none}
+
+  @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+  @media (min-width:760px){
+    .panel{max-height:34vh}
+    #app{max-width:520px;margin:0 auto;border-left:1px solid var(--line-soft);border-right:1px solid var(--line-soft)}
+  }
+</style>
+
+<div id="app">
+  <header class="topbar">
+    <div class="brand"><b>Reel Atölyesi</b><span id="tplName">ZOOM PUNCH</span></div>
+    <div class="ratios" role="group" aria-label="En boy oranı">
+      <button type="button" id="r916" data-ratio="9:16" aria-pressed="true">9:16</button>
+      <button type="button" id="r45" data-ratio="4:5" aria-pressed="false">4:5</button>
+      <button type="button" id="r11" data-ratio="1:1" aria-pressed="false">1:1</button>
+    </div>
+  </header>
+
+  <div class="stage">
+    <div class="frame">
+      <canvas id="cv" width="720" height="1280" aria-label="Reel önizleme"></canvas>
+      <span class="badge-demo" id="demoBadge">ÖRNEK KARELER</span>
+      <div class="empty" id="empty">
+        <p>Fotoğraf ekleyince reel burada oynar.</p>
+        <button class="btn primary" type="button" id="emptyAdd">Fotoğraf ekle</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="transport">
+    <button class="play" id="play" type="button" aria-label="Oynat">
+      <svg id="playIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z" fill="currentColor"/></svg>
+    </button>
+    <span class="tc"><b id="tNow">0.0</b> / <span id="tAll">0.0</span>sn</span>
+    <input type="range" id="scrub" min="0" max="1000" value="0" step="1" aria-label="Zaman çubuğu">
+  </div>
+
+  <div class="panels">
+    <!-- ŞABLON -->
+    <section class="panel on" id="p-template" role="tabpanel" aria-label="Şablon">
+      <div class="group">
+        <span class="lbl">Geçiş şablonu</span>
+        <div class="row" id="tplRow"></div>
+      </div>
+      <div class="group">
+        <span class="lbl">Renk filtresi</span>
+        <div class="row" id="filterRow"></div>
+      </div>
+      <div class="group">
+        <span class="lbl">Doku</span>
+        <div class="row">
+          <button class="chip" type="button" id="grainBtn" aria-pressed="false">Film greni</button>
+          <button class="chip" type="button" id="vignetteBtn" aria-pressed="true">Kenar karartma</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MEDYA -->
+    <section class="panel" id="p-media" role="tabpanel" aria-label="Medya">
+      <div class="group">
+        <span class="lbl">Fotoğraflar <span id="clipCount" style="color:var(--muted)"></span></span>
+        <div class="strip" id="strip"></div>
+        <p class="hint" id="mediaHint">Sıralamayı ◀ ▶ ile değiştir, ✕ ile sil.</p>
+      </div>
+      <div class="group">
+        <span class="lbl">Kare başına vuruş</span>
+        <div class="slider-row">
+          <input type="range" id="beats" min="1" max="8" step="1" value="2">
+          <span class="val" id="beatsVal">2 vuruş</span>
+        </div>
+        <p class="hint">Her fotoğrafın kaç müzik vuruşu boyunca kalacağı. Düşük değer = hızlı kurgu.</p>
+      </div>
+      <div class="group">
+        <button class="btn wide" type="button" id="clearDemo">Örnek kareleri kaldır</button>
+      </div>
+    </section>
+
+    <!-- MÜZİK -->
+    <section class="panel" id="p-music" role="tabpanel" aria-label="Müzik">
+      <div class="group">
+        <span class="lbl">Dahili ritim</span>
+        <div class="row" id="beatRow"></div>
+      </div>
+      <div class="group">
+        <span class="lbl">Kendi müziğin</span>
+        <div class="row">
+          <button class="btn" type="button" id="pickAudio">Ses dosyası seç</button>
+          <button class="btn ghost" type="button" id="dropAudio" hidden>Kaldır</button>
+        </div>
+        <p class="hint" id="audioName">Telefonundaki bir parçayı seç; reel ona göre kesilir.</p>
+        <div id="trimWrap" hidden>
+          <span class="lbl" style="margin-top:12px">Başlangıç noktası</span>
+          <div class="slider-row">
+            <input type="range" id="trim" min="0" max="1000" step="1" value="0">
+            <span class="val" id="trimVal">0:00</span>
+          </div>
+        </div>
+      </div>
+      <div class="group">
+        <span class="lbl">Tempo</span>
+        <div class="slider-row">
+          <input type="range" id="bpm" min="60" max="180" step="1" value="110">
+          <span class="val" id="bpmVal">110 BPM</span>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn" type="button" id="tap">Tempoya vur</button>
+          <button class="btn ghost" type="button" id="volBtn" aria-pressed="true">Ses açık</button>
+        </div>
+        <p class="hint">Dahili ritimler bu tempoda üretilir. Kendi parçanda tempoyu bulmak için parçayı çalıp “Tempoya vur”a ritimle bas.</p>
+      </div>
+    </section>
+
+    <!-- YAZI -->
+    <section class="panel" id="p-text" role="tabpanel" aria-label="Yazı">
+      <div class="group">
+        <span class="lbl">Başlık</span>
+        <input class="field" id="title" type="text" maxlength="60" placeholder="Örn. KAYSERİ / HAFTA SONU">
+      </div>
+      <div class="group">
+        <span class="lbl">Stil</span>
+        <div class="row" id="titleStyleRow"></div>
+      </div>
+      <div class="group">
+        <span class="lbl">Konum</span>
+        <div class="row" id="titlePosRow"></div>
+      </div>
+      <div class="group">
+        <span class="lbl">Süre</span>
+        <div class="row">
+          <button class="chip" type="button" id="titleTiming" aria-pressed="true">Sadece başta</button>
+        </div>
+      </div>
+      <div class="group">
+        <span class="lbl">Kullanıcı adı</span>
+        <input class="field" id="handle" type="text" maxlength="30" placeholder="@kullaniciadi">
+      </div>
+    </section>
+
+    <!-- AKTAR -->
+    <section class="panel" id="p-export" role="tabpanel" aria-label="Dışa aktar">
+      <div class="group">
+        <div class="summary">
+          <span>Süre <b id="sumDur">0.0 sn</b></span>
+          <span>Kare <b id="sumClips">0</b></span>
+          <span>Oran <b id="sumRatio">9:16</b></span>
+          <span>Tempo <b id="sumBpm">110</b></span>
+        </div>
+      </div>
+      <div class="group">
+        <span class="lbl">Çözünürlük</span>
+        <div class="row" id="resRow"></div>
+      </div>
+      <div class="group">
+        <button class="btn primary wide" type="button" id="exportBtn">Videoyu oluştur</button>
+        <div class="meter" id="meterWrap" hidden><i id="meter"></i></div>
+        <p class="status" id="status"></p>
+        <div id="result" hidden>
+          <video id="out" controls playsinline></video>
+          <div class="row" style="margin-top:10px">
+            <button class="btn primary" type="button" id="saveBtn">Telefona kaydet</button>
+            <button class="btn" type="button" id="shareBtn" hidden>Paylaş</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="Bölümler">
+    <button type="button" role="tab" data-tab="template" aria-selected="true">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg>Şablon</button>
+    <button type="button" role="tab" data-tab="media" aria-selected="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5-7 8"/></svg>Medya</button>
+    <button type="button" role="tab" data-tab="music" aria-selected="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>Müzik</button>
+    <button type="button" role="tab" data-tab="text" aria-selected="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6V4h16v2M12 4v16M9 20h6"/></svg>Yazı</button>
+    <button type="button" role="tab" data-tab="export" aria-selected="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m0 0L8 7m4-4l4 4"/><path d="M4 15v4a2 2 0 002 2h12a2 2 0 002-2v-4"/></svg>Aktar</button>
+  </nav>
+</div>
+
+<canvas id="exportCanvas" width="2" height="2"></canvas>
+<input type="file" id="fileImg" accept="image/*" multiple class="sr">
+<input type="file" id="fileAud" accept="audio/*" class="sr">
+
+<script>
+"use strict";
+(function(){
+
+/* ============================================================
+   Sabitler
+   ============================================================ */
+const RATIOS = {
+  "9:16": { preview:[720,1280],  high:[1080,1920] },
+  "4:5":  { preview:[864,1080],  high:[1080,1350] },
+  "1:1":  { preview:[900,900],   high:[1080,1080] }
+};
+
+const TEMPLATES = [
+  { id:"punch", name:"Zoom Punch", note:"SERT",    tr:0.16, kb:0.10, pulse:1.0 },
+  { id:"flash", name:"Flash Cut",  note:"PARLAMA", tr:0.13, kb:0.06, pulse:1.4 },
+  { id:"whip",  name:"Whip Pan",   note:"SAVURMA", tr:0.20, kb:0.09, pulse:0.8 },
+  { id:"slide", name:"Slide",      note:"KAYDIR",  tr:0.28, kb:0.08, pulse:0.6 },
+  { id:"fade",  name:"Soft Fade",  note:"YUMUŞAK", tr:0.42, kb:0.14, pulse:0.3 },
+  { id:"glitch",name:"Glitch",     note:"BOZULMA", tr:0.20, kb:0.07, pulse:1.1 },
+  { id:"flip",  name:"Flip",       note:"ÇEVİRME", tr:0.26, kb:0.09, pulse:0.7 },
+  { id:"film",  name:"Polaroid",   note:"ÇERÇEVE", tr:0.30, kb:0.07, pulse:0.5 }
+];
+
+const FILTERS = [
+  { id:"none",  name:"Ham",     css:"" },
+  { id:"vivid", name:"Canlı",   css:"saturate(1.45) contrast(1.10)" },
+  { id:"warm",  name:"Sıcak",   css:"sepia(0.26) saturate(1.22) contrast(1.05) brightness(1.03)" },
+  { id:"cool",  name:"Soğuk",   css:"saturate(1.10) hue-rotate(-12deg) brightness(1.02) contrast(1.07)" },
+  { id:"mono",  name:"Siyah-Beyaz", css:"grayscale(1) contrast(1.16)" },
+  { id:"film",  name:"Film",    css:"sepia(0.16) contrast(0.93) saturate(1.16) brightness(1.06)" },
+  { id:"vhs",   name:"VHS",     css:"saturate(1.6) contrast(1.2) hue-rotate(6deg)" }
+];
+
+const BEATS = [
+  { id:"trap",  name:"Trap" },
+  { id:"house", name:"House" },
+  { id:"pop",   name:"Pop" },
+  { id:"lofi",  name:"Lo-fi" },
+  { id:"cine",  name:"Sinematik" },
+  { id:"none",  name:"Müziksiz" }
+];
+
+const TITLE_STYLES = [
+  { id:"bold",   name:"Kalın" },
+  { id:"tape",   name:"Bant" },
+  { id:"caption",name:"Altyazı" },
+  { id:"ticker", name:"Şerit" }
+];
+const TITLE_POS = [ {id:"top",name:"Üst"}, {id:"center",name:"Orta"}, {id:"bottom",name:"Alt"} ];
+
+/* ============================================================
+   Durum
+   ============================================================ */
+const state = {
+  clips: [],
+  demo: true,
+  ratio: "9:16",
+  template: "punch",
+  filter: "vivid",
+  grain: false,
+  vignette: true,
+  bpm: 110,
+  beatsPerClip: 2,
+  beatId: "pop",
+  audio: null,        // {buffer, name, kind:"builtin"|"file"}
+  audioStart: 0,      // saniye (kendi dosyasında kırpma)
+  muted: false,
+  title: "",
+  titleStyle: "bold",
+  titlePos: "bottom",
+  titleIntroOnly: true,
+  handle: "",
+  res: "preview"
+};
+
+const $ = (id) => document.getElementById(id);
+const cv = $("cv");
+const ctx = cv.getContext("2d");
+const clamp = (v,a,b) => v < a ? a : (v > b ? b : v);
+const easeOutCubic = (t) => 1 - Math.pow(1-t, 3);
+const easeInOutCubic = (t) => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+
+const FILTER_OK = (function(){
+  try {
+    const c = document.createElement("canvas").getContext("2d");
+    c.filter = "blur(2px)";
+    return c.filter !== "none" && c.filter !== "";
+  } catch(e){ return false; }
+})();
+
+function tpl(){ return TEMPLATES.find(t => t.id === state.template) || TEMPLATES[0]; }
+function filterCss(){ const f = FILTERS.find(f => f.id === state.filter); return f ? f.css : ""; }
+function secPerBeat(){ return 60 / state.bpm; }
+function clipDur(){ return secPerBeat() * state.beatsPerClip; }
+function totalDur(){ return Math.max(0, state.clips.length * clipDur()); }
+
+/* ============================================================
+   Çizim yardımcıları
+   ============================================================ */
+function roundRectPath(c, x, y, w, h, r){
+  const rr = Math.min(r, w/2, h/2);
+  c.beginPath();
+  c.moveTo(x+rr, y);
+  c.lineTo(x+w-rr, y); c.quadraticCurveTo(x+w, y, x+w, y+rr);
+  c.lineTo(x+w, y+h-rr); c.quadraticCurveTo(x+w, y+h, x+w-rr, y+h);
+  c.lineTo(x+rr, y+h); c.quadraticCurveTo(x, y+h, x, y+h-rr);
+  c.lineTo(x, y+rr); c.quadraticCurveTo(x, y, x+rr, y);
+  c.closePath();
+}
+
+function coverRect(iw, ih, w, h, scale){
+  const s = Math.max(w/iw, h/ih) * scale;
+  const dw = iw*s, dh = ih*s;
+  return { x:(w-dw)/2, y:(h-dh)/2, w:dw, h:dh };
+}
+
+// box: {x,y,w,h} kanvas uzayında sabit kırpma alanı
+function paintClip(c, box, clip, o){
+  if (!clip || !clip.el) return;
+  o = o || {};
+  c.save();
+  c.beginPath(); c.rect(box.x, box.y, box.w, box.h); c.clip();
+  c.globalAlpha = o.alpha == null ? 1 : clamp(o.alpha, 0, 1);
+  c.translate(box.x + box.w/2 + (o.dx||0), box.y + box.h/2 + (o.dy||0));
+  if (o.rot) c.rotate(o.rot);
+  c.scale(o.sx == null ? 1 : o.sx, o.sy == null ? 1 : o.sy);
+  const r = coverRect(clip.w, clip.h, box.w, box.h, o.kb == null ? 1 : o.kb);
+  if (FILTER_OK && o.filter) c.filter = o.filter;
+  c.drawImage(clip.el, -box.w/2 + r.x + (o.px||0), -box.h/2 + r.y + (o.py||0), r.w, r.h);
+  c.restore();
+}
+
+let grainPattern = null;
+function getGrain(c){
+  if (grainPattern) return grainPattern;
+  const g = document.createElement("canvas");
+  g.width = g.height = 128;
+  const gc = g.getContext("2d");
+  const img = gc.createImageData(128,128);
+  for (let i=0;i<img.data.length;i+=4){
+    const v = 110 + Math.random()*90;
+    img.data[i]=img.data[i+1]=img.data[i+2]=v;
+    img.data[i+3]=255;
+  }
+  gc.putImageData(img,0,0);
+  grainPattern = c.createPattern(g, "repeat");
+  return grainPattern;
+}
+
+function drawTracked(c, text, x, y, spacing, align){
+  let total = 0;
+  for (const ch of text) total += c.measureText(ch).width + spacing;
+  total -= spacing;
+  let cx = align === "center" ? x - total/2 : x;
+  for (const ch of text){
+    c.fillText(ch, cx, y);
+    cx += c.measureText(ch).width + spacing;
+  }
+  return total;
+}
+
+function wrapLines(c, text, maxW){
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines = [];
+  let cur = "";
+  for (const w of words){
+    const test = cur ? cur + " " + w : w;
+    if (c.measureText(test).width > maxW && cur){ lines.push(cur); cur = w; }
+    else cur = test;
+  }
+  if (cur) lines.push(cur);
+  return lines.slice(0, 3);
+}
+
+/* ============================================================
+   Kare oluşturucu
+   ============================================================ */
+function drawFrame(c, W, H, t){
+  const T = tpl();
+  c.setTransform(1,0,0,1,0,0);
+  c.globalAlpha = 1;
+  if (FILTER_OK) c.filter = "none";
+  c.fillStyle = "#000";
+  c.fillRect(0,0,W,H);
+
+  const n = state.clips.length;
+  if (!n) return;
+
+  const cd = clipDur();
+  const total = n * cd;
+  const tt = ((t % total) + total) % total;
+  const idx = clamp(Math.floor(tt / cd), 0, n-1);
+  const local = tt - idx*cd;
+  const trDur = Math.min(T.tr, cd*0.45);
+  const q = trDur > 0 ? clamp(local/trDur, 0, 1) : 1;
+  const pCur = clamp(local/cd, 0, 1);
+  const prev = idx > 0 ? state.clips[idx-1] : (n > 1 ? state.clips[n-1] : null);
+  const cur = state.clips[idx];
+  const pPrev = clamp((cd + local)/cd, 0, 1.3);
+
+  // vuruş nabzı
+  const spb = secPerBeat();
+  const phase = (tt % spb) / spb;
+  const pulse = Math.pow(1 - phase, 4);
+  const ps = 1 + 0.032 * pulse * T.pulse;
+
+  // Polaroid şablonunda kareler beyaz çerçeve içinde
+  let box = { x:0, y:0, w:W, h:H };
+  if (T.id === "film"){
+    const m = Math.round(W*0.055);
+    const bottom = Math.round(W*0.16);
+    c.fillStyle = "#F4F1E9";
+    roundRectPath(c, m*0.55, m*0.55, W - m*1.1, H - m*1.1, W*0.03);
+    c.fill();
+    box = { x:m, y:m, w:W - m*2, h:H - m - bottom };
+  }
+
+  const F = filterCss();
+  const kbCur = 1 + T.kb * easeInOutCubic(pCur);
+  const kbPrev = 1 + T.kb * easeInOutCubic(Math.min(1, pPrev));
+  const e = easeOutCubic(q);
+  const showPrev = prev && q < 1 && (idx > 0 || n > 1);
+
+  switch (T.id){
+    case "fade": {
+      if (showPrev) paintClip(c, box, prev, {kb:kbPrev, sx:ps, sy:ps, filter:F});
+      paintClip(c, box, cur, {kb:kbCur, sx:ps, sy:ps, alpha:e, filter:F});
+      break;
+    }
+    case "punch": {
+      if (showPrev) paintClip(c, box, prev, {kb:kbPrev*(1+0.22*e), sx:ps, sy:ps, alpha:1, filter:F});
+      const z = 1 + 0.55*(1-e);
+      paintClip(c, box, cur, {kb:kbCur, sx:ps*z, sy:ps*z, alpha:clamp(e*1.7,0,1), filter:F});
+      break;
+    }
+    case "flash": {
+      paintClip(c, box, cur, {kb:kbCur, sx:ps, sy:ps, filter:F});
+      if (q < 1){
+        c.save();
+        c.globalAlpha = (1-q) * 0.8;
+        c.fillStyle = "#FFFFFF";
+        c.fillRect(box.x, box.y, box.w, box.h);
+        c.restore();
+      }
+      break;
+    }
+    case "slide": {
+      if (showPrev) paintClip(c, box, prev, {kb:kbPrev, dx:-e*box.w*0.45, sx:ps, sy:ps, filter:F});
+      paintClip(c, box, cur, {kb:kbCur, dx:(1-e)*box.w, sx:ps, sy:ps, filter:F});
+      break;
+    }
+    case "whip": {
+      if (showPrev) paintClip(c, box, prev, {kb:kbPrev, dx:-e*box.w*1.15, sx:ps, sy:ps, filter:F});
+      const off = (1-e) * box.w * 1.15;
+      for (let k=4;k>=1;k--){
+        paintClip(c, box, cur, {kb:kbCur, dx:off + k*box.w*0.05*(1-e), alpha:0.16, filter:F});
+      }
+      paintClip(c, box, cur, {kb:kbCur, dx:off, sx:ps, sy:ps, filter:F});
+      break;
+    }
+    case "glitch": {
+      if (showPrev) paintClip(c, box, prev, {kb:kbPrev, sx:ps, sy:ps, filter:F});
+      paintClip(c, box, cur, {kb:kbCur, sx:ps, sy:ps, alpha:clamp(e*2,0,1), filter:F});
+      if (q < 1){
+        const amp = (1-q) * box.w * 0.06;
+        c.save();
+        c.globalCompositeOperation = "lighten";
+        c.globalAlpha = 0.5;
+        paintClip(c, box, cur, {kb:kbCur, dx:amp, filter:F});
+        paintClip(c, box, cur, {kb:kbCur, dx:-amp, filter:F});
+        c.restore();
+        const bands = 5;
+        for (let b=0;b<bands;b++){
+          const seed = Math.sin((idx+1)*12.9898 + b*78.233) * 43758.5453;
+          const rnd = seed - Math.floor(seed);
+          const by = box.y + (b/bands)*box.h;
+          const bh = box.h/bands;
+          c.save();
+          c.beginPath(); c.rect(box.x, by, box.w, bh); c.clip();
+          paintClip(c, {x:box.x,y:by,w:box.w,h:bh}, cur, {
+            kb:kbCur, dx:(rnd-0.5)*amp*3, alpha:1, filter:F,
+            py: -(by - box.y) * 0
+          });
+          c.restore();
+        }
+      }
+      break;
+    }
+    case "flip": {
+      if (q < 0.5){
+        const k = easeOutCubic(q*2);
+        if (showPrev) paintClip(c, box, prev, {kb:kbPrev, sx:Math.max(0.02,1-k), sy:ps, filter:F});
+        else paintClip(c, box, cur, {kb:kbCur, sx:ps, sy:ps, filter:F});
+      } else {
+        const k = easeOutCubic((q-0.5)*2);
+        paintClip(c, box, cur, {kb:kbCur, sx:Math.max(0.02,k)*ps, sy:ps, filter:F});
+      }
+      break;
+    }
+    case "film": {
+      if (showPrev) paintClip(c, box, prev, {kb:kbPrev, filter:F});
+      const s = 0.86 + 0.14*e;
+      paintClip(c, box, cur, {kb:kbCur, sx:s*ps, sy:s*ps, rot:(1-e)*0.045, alpha:e, filter:F});
+      break;
+    }
+    default:
+      paintClip(c, box, cur, {kb:kbCur, sx:ps, sy:ps, filter:F});
+  }
+
+  if (FILTER_OK) c.filter = "none";
+
+  // kenar karartma
+  if (state.vignette && T.id !== "film"){
+    const g = c.createRadialGradient(W/2, H*0.46, Math.min(W,H)*0.28, W/2, H*0.5, Math.max(W,H)*0.72);
+    g.addColorStop(0, "rgba(0,0,0,0)");
+    g.addColorStop(1, "rgba(0,0,0,0.42)");
+    c.fillStyle = g;
+    c.fillRect(0,0,W,H);
+  }
+
+  // film greni
+  if (state.grain){
+    c.save();
+    c.globalAlpha = 0.07;
+    c.globalCompositeOperation = "overlay";
+    c.fillStyle = getGrain(c);
+    c.translate((tt*37)%128 - 128, (tt*53)%128 - 128);
+    c.fillRect(0,0,W+256,H+256);
+    c.restore();
+  }
+
+  drawTitle(c, W, H, tt);
+  drawHandle(c, W, H);
+}
+
+function drawTitle(c, W, H, tt){
+  const text = state.title.trim();
+  if (!text) return;
+
+  // Başlık ilk karede tam görünür; giriş bir "pop", çıkış bir sönme.
+  const introLen = secPerBeat() * 4;
+  let vis = 1;
+  if (state.titleIntroOnly){
+    if (tt > introLen) return;
+    vis = easeOutCubic(clamp((introLen - tt)/0.3, 0, 1));
+  }
+  if (vis <= 0.01) return;
+  const inE = easeOutCubic(clamp(tt/0.34, 0, 1));
+  const rise = (1 - inE) * H*0.018;
+  const pop = 0.94 + 0.06*inE;
+
+  const unit = W/100;
+  let y;
+  if (state.titlePos === "top") y = H*0.14;
+  else if (state.titlePos === "center") y = H*0.5;
+  else y = H*0.82;
+  y += rise;
+
+  c.save();
+  c.globalAlpha = vis;
+  c.translate(W/2, y);
+  c.scale(pop, pop);
+  c.translate(-W/2, -y);
+  c.textAlign = "center";
+  c.textBaseline = "middle";
+
+  if (state.titleStyle === "bold"){
+    const size = unit*9.5;
+    c.font = '800 ' + size + 'px "Bricolage Grotesque", "Trebuchet MS", sans-serif';
+    const lines = wrapLines(c, text.toUpperCase(), W*0.84);
+    const lh = size*1.02;
+    let ly = y - (lines.length-1)*lh/2;
+    for (const line of lines){
+      c.shadowColor = "rgba(0,0,0,0.55)";
+      c.shadowBlur = unit*2.4;
+      c.shadowOffsetY = unit*0.5;
+      c.fillStyle = "#FFFFFF";
+      c.fillText(line, W/2, ly);
+      ly += lh;
+    }
+  } else if (state.titleStyle === "tape"){
+    const size = unit*7;
+    c.font = '700 ' + size + 'px "Manrope", system-ui, sans-serif';
+    const lines = wrapLines(c, text.toUpperCase(), W*0.74);
+    const lh = size*1.9;
+    let ly = y - (lines.length-1)*lh/2;
+    for (const line of lines){
+      const w = c.measureText(line).width + unit*7;
+      const h = size*1.55;
+      const g = c.createLinearGradient(W/2-w/2, 0, W/2+w/2, 0);
+      g.addColorStop(0, "#FF3D74"); g.addColorStop(1, "#FF9A3D");
+      c.fillStyle = g;
+      roundRectPath(c, W/2-w/2, ly-h/2, w, h, h*0.26);
+      c.fill();
+      c.fillStyle = "#1A0509";
+      c.fillText(line, W/2, ly + size*0.03);
+      ly += lh;
+    }
+  } else if (state.titleStyle === "caption"){
+    const size = unit*5.4;
+    c.font = '500 ' + size + 'px "Manrope", system-ui, sans-serif';
+    const lines = wrapLines(c, text, W*0.8);
+    const lh = size*1.5;
+    let ly = y - (lines.length-1)*lh/2;
+    for (const line of lines){
+      const w = c.measureText(line).width + unit*5;
+      c.fillStyle = "rgba(6,6,10,0.62)";
+      roundRectPath(c, W/2-w/2, ly-lh*0.46, w, lh*0.92, lh*0.3);
+      c.fill();
+      c.fillStyle = "#FFFFFF";
+      c.fillText(line, W/2, ly);
+      ly += lh;
+    }
+  } else { // ticker
+    const size = unit*4.4;
+    c.font = '500 ' + size + 'px "JetBrains Mono", ui-monospace, monospace';
+    const line = text.toUpperCase().slice(0, 34);
+    const barH = size*2.6;
+    c.fillStyle = "rgba(6,6,10,0.55)";
+    c.fillRect(-W*0.1, y-barH/2, W*1.2, barH);
+    c.fillStyle = "#FF9A3D";
+    c.fillRect(-W*0.1, y-barH/2, W*1.2, unit*0.35);
+    c.fillStyle = "#FFFFFF";
+    drawTracked(c, line, W/2, y, size*0.22, "center");
+  }
+  c.restore();
+}
+
+function drawHandle(c, W, H){
+  const h = state.handle.trim();
+  if (!h) return;
+  const unit = W/100;
+  const size = unit*3.4;
+  c.save();
+  c.font = '500 ' + size + 'px "JetBrains Mono", ui-monospace, monospace';
+  c.textAlign = "left";
+  c.textBaseline = "alphabetic";
+  c.globalAlpha = 0.82;
+  c.shadowColor = "rgba(0,0,0,0.6)";
+  c.shadowBlur = unit*1.6;
+  c.fillStyle = "#FFFFFF";
+  c.fillText(h.startsWith("@") ? h : "@" + h, unit*5, H - unit*5);
+  c.restore();
+}
+
+/* ============================================================
+   Ses: dahili ritim üretimi
+   ============================================================ */
+function renderBeat(kind, bpm){
+  const spb = 60/bpm;
+  const bars = 4, beats = bars*4;
+  const dur = beats*spb + 0.4;
+  const sr = 44100;
+  const OC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  if (!OC) return Promise.resolve(null);
+  const oc = new OC(2, Math.ceil(dur*sr), sr);
+
+  const master = oc.createGain();
+  master.gain.value = 0.85;
+  const comp = oc.createDynamicsCompressor ? oc.createDynamicsCompressor() : null;
+  if (comp){ master.connect(comp); comp.connect(oc.destination); }
+  else master.connect(oc.destination);
+
+  const noiseBuf = oc.createBuffer(1, sr, sr);
+  const nd = noiseBuf.getChannelData(0);
+  for (let i=0;i<nd.length;i++) nd[i] = Math.random()*2-1;
+
+  function env(node, t, a, d, peak){
+    const g = oc.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t+a);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+a+d);
+    node.connect(g);
+    return g;
+  }
+  function kick(t, peak){
+    const o = oc.createOscillator();
+    o.type = "sine";
+    o.frequency.setValueAtTime(140, t);
+    o.frequency.exponentialRampToValueAtTime(42, t+0.12);
+    const g = env(o, t, 0.004, 0.32, peak||0.95);
+    g.connect(master);
+    o.start(t); o.stop(t+0.4);
+  }
+  function noise(t, len, peak, type, freq, q){
+    const s = oc.createBufferSource();
+    s.buffer = noiseBuf;
+    s.loop = true;
+    const f = oc.createBiquadFilter();
+    f.type = type; f.frequency.value = freq; if (q) f.Q.value = q;
+    s.connect(f);
+    const g = env(f, t, 0.002, len, peak);
+    g.connect(master);
+    s.start(t); s.stop(t+len+0.05);
+  }
+  function tone(t, len, freq, peak, type){
+    const o = oc.createOscillator();
+    o.type = type || "sawtooth";
+    o.frequency.setValueAtTime(freq, t);
+    const f = oc.createBiquadFilter();
+    f.type = "lowpass"; f.frequency.value = 900;
+    o.connect(f);
+    const g = env(f, t, 0.012, len, peak);
+    g.connect(master);
+    o.start(t); o.stop(t+len+0.08);
+  }
+  function pad(t, len, freqs, peak){
+    for (const fr of freqs){
+      const o = oc.createOscillator();
+      o.type = "triangle";
+      o.frequency.value = fr;
+      const g = oc.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(peak, t+len*0.35);
+      g.gain.linearRampToValueAtTime(0.0001, t+len);
+      o.connect(g); g.connect(master);
+      o.start(t); o.stop(t+len+0.05);
+    }
+  }
+  const B = (n) => n*spb;
+  const ROOT = [110, 130.81, 146.83, 98]; // Am - C - D - G köklerinin yaklaşık değerleri
+
+  if (kind === "house"){
+    for (let b=0;b<beats;b++){
+      kick(B(b), 1.0);
+      noise(B(b)+spb*0.5, 0.045, 0.22, "highpass", 8000);
+      if (b%4 === 2) noise(B(b), 0.14, 0.4, "bandpass", 1800, 0.8);
+      tone(B(b)+spb*0.5, spb*0.4, ROOT[Math.floor(b/4)%4], 0.22, "sawtooth");
+    }
+  } else if (kind === "trap"){
+    const kicks = [0, 1.75, 4, 6.5, 8, 9.75, 12, 14.5];
+    kicks.forEach(k => kick(B(k), 1.0));
+    [2,6,10,14].forEach(s => noise(B(s), 0.16, 0.45, "bandpass", 1700, 0.7));
+    for (let b=0;b<beats;b++){
+      noise(B(b), 0.035, 0.16, "highpass", 9000);
+      noise(B(b)+spb*0.5, 0.03, 0.13, "highpass", 9000);
+      if (b%4 === 3) for (let r=0;r<4;r++) noise(B(b)+spb*0.25*r, 0.022, 0.12, "highpass", 10000);
+      if (b%4 === 0) tone(B(b), spb*1.6, ROOT[Math.floor(b/4)%4]/2, 0.3, "sine");
+    }
+  } else if (kind === "pop"){
+    for (let b=0;b<beats;b++){
+      if (b%4 === 0 || b%4 === 2) kick(B(b), 0.9);
+      if (b%4 === 1 || b%4 === 3) noise(B(b), 0.13, 0.4, "bandpass", 1900, 0.8);
+      noise(B(b)+spb*0.5, 0.04, 0.17, "highpass", 8500);
+      if (b%4 === 0){
+        const r = ROOT[Math.floor(b/4)%4];
+        pad(B(b), spb*3.6, [r, r*1.25, r*1.5], 0.09);
+        tone(B(b), spb*0.9, r/2, 0.26, "sine");
+      }
+    }
+  } else if (kind === "lofi"){
+    const kicks = [0, 2.75, 4, 8, 10.75, 12];
+    kicks.forEach(k => kick(B(k), 0.8));
+    [2,6,10,14].forEach(s => noise(B(s), 0.2, 0.3, "bandpass", 1300, 0.6));
+    for (let b=0;b<beats;b++){
+      noise(B(b), 0.05, 0.1, "highpass", 6500);
+      noise(B(b)+spb*0.66, 0.04, 0.07, "highpass", 6500);
+      if (b%4 === 0){
+        const r = ROOT[Math.floor(b/4)%4];
+        pad(B(b), spb*3.8, [r, r*1.19, r*1.5, r*1.78], 0.075);
+      }
+    }
+    noise(0, dur, 0.02, "highpass", 3000); // hafif vinil hışırtısı
+  } else if (kind === "cine"){
+    for (let bar=0;bar<bars;bar++){
+      const r = ROOT[bar%4];
+      pad(B(bar*4), spb*4.4, [r/2, r, r*1.5, r*2], 0.12);
+      kick(B(bar*4), 0.55);
+      if (bar%2 === 1) noise(B(bar*4+3.5), 0.5, 0.16, "highpass", 2500);
+    }
+  }
+  return oc.startRendering();
+}
+
+/* ============================================================
+   Ses motoru
+   ============================================================ */
+let audioCtx = null, srcNode = null, outGain = null, recDest = null;
+let clockZero = 0, seekAt = 0, playing = false, rafId = 0;
+
+function AC(){
+  const C = window.AudioContext || window.webkitAudioContext;
+  if (!audioCtx && C){
+    audioCtx = new C();
+    outGain = audioCtx.createGain();
+    outGain.gain.value = state.muted ? 0 : 1;
+    outGain.connect(audioCtx.destination);
+  }
+  return audioCtx;
+}
+function now(){ return audioCtx ? audioCtx.currentTime : performance.now()/1000; }
+
+function stopSource(){
+  if (srcNode){
+    try { srcNode.onended = null; srcNode.stop(); } catch(e){}
+    try { srcNode.disconnect(); } catch(e){}
+    srcNode = null;
+  }
+}
+function startSource(offsetInReel, extraDest){
+  stopSource();
+  if (!audioCtx || !state.audio || !state.audio.buffer) return;
+  const buf = state.audio.buffer;
+  srcNode = audioCtx.createBufferSource();
+  srcNode.buffer = buf;
+  srcNode.loop = true;
+  if (outGain) srcNode.connect(outGain);
+  if (extraDest) srcNode.connect(extraDest);
+  const base = state.audio.kind === "file" ? state.audioStart : 0;
+  const off = (base + offsetInReel) % buf.duration;
+  try { srcNode.start(0, off); } catch(e){ try { srcNode.start(); } catch(e2){} }
+}
+
+async function play(){
+  if (!state.clips.length) return;
+  const c = AC();
+  if (c && c.state === "suspended"){ try { await c.resume(); } catch(e){} }
+  playing = true;
+  clockZero = now() - seekAt;
+  startSource(seekAt);
+  setPlayIcon(true);
+  loop();
+}
+function pause(){
+  playing = false;
+  seekAt = currentTime();
+  stopSource();
+  setPlayIcon(false);
+  cancelAnimationFrame(rafId);
+  render();
+}
+function currentTime(){
+  if (!playing) return seekAt;
+  const total = totalDur();
+  if (!total) return 0;
+  return (now() - clockZero) % total;
+}
+function loop(){
+  if (!playing) return;
+  render();
+  rafId = requestAnimationFrame(loop);
+}
+function render(){
+  drawFrame(ctx, cv.width, cv.height, currentTime());
+  const total = totalDur();
+  const t = currentTime();
+  $("tNow").textContent = t.toFixed(1);
+  if (!scrubbing) $("scrub").value = total ? Math.round(t/total*1000) : 0;
+}
+
+function setPlayIcon(on){
+  $("playIcon").innerHTML = on
+    ? '<path d="M7 4.5h3.5v15H7zM13.5 4.5H17v15h-3.5z" fill="currentColor"/>'
+    : '<path d="M7 4.5v15l13-7.5z" fill="currentColor"/>';
+  $("play").setAttribute("aria-label", on ? "Duraklat" : "Oynat");
+}
+
+/* ============================================================
+   Medya yükleme
+   ============================================================ */
+const MAXDIM = 1500;
+function fileToClip(file){
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      let w = img.naturalWidth || img.width;
+      let h = img.naturalHeight || img.height;
+      if (!w || !h){ URL.revokeObjectURL(url); reject(new Error("boyut yok")); return; }
+      let el = img, ow = w, oh = h;
+      const m = Math.max(w,h);
+      if (m > MAXDIM){
+        const s = MAXDIM/m;
+        ow = Math.round(w*s); oh = Math.round(h*s);
+        const cnv = document.createElement("canvas");
+        cnv.width = ow; cnv.height = oh;
+        cnv.getContext("2d").drawImage(img, 0, 0, ow, oh);
+        el = cnv;
+      }
+      const thumb = document.createElement("canvas");
+      const ts = 130/Math.max(w,h);
+      thumb.width = Math.max(1, Math.round(w*ts));
+      thumb.height = Math.max(1, Math.round(h*ts));
+      thumb.getContext("2d").drawImage(img, 0, 0, thumb.width, thumb.height);
+      let thumbUrl = "";
+      try { thumbUrl = thumb.toDataURL("image/jpeg", 0.72); } catch(e){}
+      URL.revokeObjectURL(url);
+      resolve({ id: Math.random().toString(36).slice(2), el, w: ow, h: oh, thumb: thumbUrl, demo: false });
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("okunamadı")); };
+    img.src = url;
+  });
+}
+
+// Açılışta oynayan örnek kareler (algoritmik, telifsiz)
+function makeDemoClips(){
+  const palettes = [
+    ["#2B1055","#7597DE","#FF6B9A"],
+    ["#0F2027","#2C5364","#38D9A9"],
+    ["#4A1C1C","#FF9A3D","#FFE29A"],
+    ["#12002E","#8A6BFF","#FF3D74"]
+  ];
+  return palettes.map((pal, i) => {
+    const W = 900, H = 1200;
+    const c = document.createElement("canvas");
+    c.width = W; c.height = H;
+    const g = c.getContext("2d");
+    const grad = g.createLinearGradient(0, 0, W, H);
+    grad.addColorStop(0, pal[0]); grad.addColorStop(0.55, pal[1]); grad.addColorStop(1, pal[2]);
+    g.fillStyle = grad; g.fillRect(0,0,W,H);
+    let seed = (i+1)*9301;
+    const rnd = () => { seed = (seed*9301 + 49297) % 233280; return seed/233280; };
+    g.globalCompositeOperation = "overlay";
+    for (let k=0;k<26;k++){
+      const r = 60 + rnd()*300;
+      g.beginPath();
+      g.arc(rnd()*W, rnd()*H, r, 0, Math.PI*2);
+      g.fillStyle = "rgba(255,255,255," + (0.03 + rnd()*0.07) + ")";
+      g.fill();
+    }
+    g.globalCompositeOperation = "source-over";
+    g.strokeStyle = "rgba(255,255,255,0.16)";
+    g.lineWidth = 2;
+    for (let k=0;k<7;k++){
+      g.beginPath();
+      const y0 = rnd()*H;
+      g.moveTo(0, y0);
+      g.bezierCurveTo(W*0.3, y0 - 180 + rnd()*360, W*0.7, y0 - 180 + rnd()*360, W, rnd()*H);
+      g.stroke();
+    }
+    let thumbUrl = "";
+    try { thumbUrl = c.toDataURL("image/jpeg", 0.7); } catch(e){}
+    return { id:"demo"+i, el:c, w:W, h:H, thumb:thumbUrl, demo:true };
+  });
+}
+
+/* ============================================================
+   Arayüz
+   ============================================================ */
+let scrubbing = false;
+
+function chipBtn(item, pressed, cls){
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = cls || "chip";
+  b.setAttribute("aria-pressed", pressed ? "true" : "false");
+  b.dataset.id = item.id;
+  if (cls === "tpl"){
+    const n = document.createElement("b"); n.textContent = item.name;
+    const s = document.createElement("i"); s.textContent = item.note;
+    b.append(n, s);
+  } else {
+    b.textContent = item.name;
+  }
+  return b;
+}
+
+function buildChipRow(rowId, items, getSel, onPick, cls){
+  const row = $(rowId);
+  row.textContent = "";
+  items.forEach(it => {
+    const b = chipBtn(it, getSel() === it.id, cls);
+    b.addEventListener("click", () => {
+      onPick(it.id);
+      Array.from(row.children).forEach(ch => ch.setAttribute("aria-pressed", ch.dataset.id === getSel() ? "true" : "false"));
+    });
+    row.appendChild(b);
+  });
+}
+
+function setCanvasSize(){
+  const d = RATIOS[state.ratio].preview;
+  cv.width = d[0]; cv.height = d[1];
+  render();
+}
+
+function refreshStrip(){
+  const strip = $("strip");
+  strip.textContent = "";
+  state.clips.forEach((clip, i) => {
+    const d = document.createElement("div");
+    d.className = "thumb";
+    if (clip.thumb){
+      const im = document.createElement("img");
+      im.src = clip.thumb; im.alt = "Kare " + (i+1);
+      d.appendChild(im);
+    }
+    const n = document.createElement("span");
+    n.className = "n"; n.textContent = i+1;
+    d.appendChild(n);
+    const acts = document.createElement("div");
+    acts.className = "acts";
+    const mk = (label, title, fn) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.textContent = label; b.title = title;
+      b.setAttribute("aria-label", title + " " + (i+1));
+      b.addEventListener("click", fn);
+      return b;
+    };
+    acts.append(
+      mk("◀", "Sola al", () => { if (i>0){ const a = state.clips.splice(i,1)[0]; state.clips.splice(i-1,0,a); afterClipChange(); } }),
+      mk("✕", "Sil", () => { state.clips.splice(i,1); afterClipChange(); }),
+      mk("▶", "Sağa al", () => { if (i<state.clips.length-1){ const a = state.clips.splice(i,1)[0]; state.clips.splice(i+1,0,a); afterClipChange(); } })
+    );
+    d.appendChild(acts);
+    strip.appendChild(d);
+  });
+  const add = document.createElement("button");
+  add.type = "button"; add.className = "addtile"; add.textContent = "+";
+  add.setAttribute("aria-label", "Fotoğraf ekle");
+  add.addEventListener("click", () => $("fileImg").click());
+  strip.appendChild(add);
+  $("clipCount").textContent = state.clips.length ? "(" + state.clips.length + ")" : "";
+}
+
+function afterClipChange(){
+  if (playing) pause();
+  seekAt = 0;
+  state.demo = state.clips.some(c => c.demo);
+  $("demoBadge").hidden = !state.demo || !state.clips.length;
+  $("empty").classList.toggle("on", state.clips.length === 0);
+  $("clearDemo").disabled = !state.demo;
+  $("play").disabled = state.clips.length === 0;
+  $("exportBtn").disabled = state.clips.length === 0;
+  refreshStrip();
+  refreshSummary();
+  render();
+}
+
+function refreshSummary(){
+  const total = totalDur();
+  $("tAll").textContent = total.toFixed(1);
+  $("sumDur").textContent = total.toFixed(1) + " sn";
+  $("sumClips").textContent = state.clips.length;
+  $("sumRatio").textContent = state.ratio;
+  $("sumBpm").textContent = state.bpm;
+  const hint = $("mediaHint");
+  if (total > 90) hint.textContent = "Sıralamayı ◀ ▶ ile değiştir. Süre 90 sn'yi aştı — Instagram reel sınırı için kısalt.";
+  else hint.textContent = "Sıralamayı ◀ ▶ ile değiştir, ✕ ile sil.";
+}
+
+/* --- Sekmeler --- */
+Array.from(document.querySelectorAll(".tabs button")).forEach(btn => {
+  btn.addEventListener("click", () => {
+    const id = btn.dataset.tab;
+    Array.from(document.querySelectorAll(".tabs button")).forEach(b => b.setAttribute("aria-selected", b === btn ? "true" : "false"));
+    Array.from(document.querySelectorAll(".panel")).forEach(p => p.classList.toggle("on", p.id === "p-" + id));
+  });
+});
+
+/* --- Oran --- */
+Array.from(document.querySelectorAll(".ratios button")).forEach(b => {
+  b.addEventListener("click", () => {
+    state.ratio = b.dataset.ratio;
+    Array.from(document.querySelectorAll(".ratios button")).forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+    setCanvasSize();
+    refreshSummary();
+  });
+});
+
+/* --- Şablon / filtre --- */
+buildChipRow("tplRow", TEMPLATES, () => state.template, (id) => {
+  state.template = id;
+  $("tplName").textContent = (TEMPLATES.find(t => t.id === id) || {}).name.toUpperCase();
+  render();
+}, "tpl");
+
+buildChipRow("filterRow", FILTERS, () => state.filter, (id) => { state.filter = id; render(); });
+
+$("grainBtn").addEventListener("click", function(){
+  state.grain = !state.grain;
+  this.setAttribute("aria-pressed", state.grain ? "true" : "false");
+  render();
+});
+$("vignetteBtn").addEventListener("click", function(){
+  state.vignette = !state.vignette;
+  this.setAttribute("aria-pressed", state.vignette ? "true" : "false");
+  render();
+});
+
+/* --- Medya --- */
+$("emptyAdd").addEventListener("click", () => $("fileImg").click());
+$("fileImg").addEventListener("change", async (ev) => {
+  const files = Array.from(ev.target.files || []);
+  ev.target.value = "";
+  if (!files.length) return;
+  if (state.demo){ state.clips = state.clips.filter(c => !c.demo); }
+  let failed = 0;
+  for (const f of files){
+    try { state.clips.push(await fileToClip(f)); }
+    catch(e){ failed++; }
+  }
+  afterClipChange();
+  if (failed) setStatus(failed + " dosya açılamadı (desteklenmeyen biçim).", "err");
+});
+$("clearDemo").addEventListener("click", () => {
+  state.clips = state.clips.filter(c => !c.demo);
+  afterClipChange();
+});
+$("beats").addEventListener("input", function(){
+  state.beatsPerClip = +this.value;
+  $("beatsVal").textContent = this.value + " vuruş";
+  if (playing) pause();
+  seekAt = 0;
+  refreshSummary();
+  render();
+});
+
+/* --- Müzik --- */
+buildChipRow("beatRow", BEATS, () => (state.audio && state.audio.kind === "builtin" ? state.beatId : (state.audio ? "" : state.beatId)), async (id) => {
+  state.beatId = id;
+  await applyBuiltinBeat();
+});
+
+async function applyBuiltinBeat(){
+  if (playing) pause();
+  $("dropAudio").hidden = true;
+  $("trimWrap").hidden = true;
+  $("audioName").textContent = "Telefonundaki bir parçayı seç; reel ona göre kesilir.";
+  if (state.beatId === "none"){ state.audio = null; render(); return; }
+  AC();
+  try {
+    const buf = await renderBeat(state.beatId, state.bpm);
+    if (buf) state.audio = { buffer: buf, name: (BEATS.find(b => b.id === state.beatId) || {}).name, kind: "builtin" };
+  } catch(e){ state.audio = null; }
+  render();
+}
+
+$("pickAudio").addEventListener("click", () => $("fileAud").click());
+$("fileAud").addEventListener("change", async (ev) => {
+  const f = (ev.target.files || [])[0];
+  ev.target.value = "";
+  if (!f) return;
+  if (playing) pause();
+  setStatus("Ses çözümleniyor…");
+  try {
+    const c = AC();
+    if (!c) throw new Error("ses yok");
+    const arr = await f.arrayBuffer();
+    const buf = await new Promise((res, rej) => {
+      const p = c.decodeAudioData(arr, res, rej);
+      if (p && p.then) p.then(res, rej);
+    });
+    state.audio = { buffer: buf, name: f.name, kind: "file" };
+    state.audioStart = 0;
+    $("audioName").textContent = f.name + " · " + fmtTime(buf.duration);
+    $("dropAudio").hidden = false;
+    $("trimWrap").hidden = false;
+    $("trim").value = 0;
+    $("trimVal").textContent = "0:00";
+    Array.from($("beatRow").children).forEach(ch => ch.setAttribute("aria-pressed", "false"));
+    setStatus("");
+    render();
+  } catch(e){
+    setStatus("Bu ses dosyası açılamadı. MP3 veya M4A dene.", "err");
+  }
+});
+$("dropAudio").addEventListener("click", async () => {
+  state.audio = null;
+  state.audioStart = 0;
+  $("dropAudio").hidden = true;
+  $("trimWrap").hidden = true;
+  $("audioName").textContent = "Telefonundaki bir parçayı seç; reel ona göre kesilir.";
+  await applyBuiltinBeat();
+  Array.from($("beatRow").children).forEach(ch => ch.setAttribute("aria-pressed", ch.dataset.id === state.beatId ? "true" : "false"));
+});
+$("trim").addEventListener("input", function(){
+  if (!state.audio || state.audio.kind !== "file") return;
+  const d = state.audio.buffer.duration;
+  state.audioStart = (+this.value/1000) * Math.max(0, d - 1);
+  $("trimVal").textContent = fmtTime(state.audioStart);
+  if (playing){ stopSource(); startSource(currentTime()); }
+});
+$("bpm").addEventListener("input", function(){
+  state.bpm = +this.value;
+  $("bpmVal").textContent = this.value + " BPM";
+  refreshSummary();
+  render();
+});
+$("bpm").addEventListener("change", async () => {
+  if (state.audio && state.audio.kind === "builtin") await applyBuiltinBeat();
+});
+$("volBtn").addEventListener("click", function(){
+  state.muted = !state.muted;
+  this.setAttribute("aria-pressed", state.muted ? "false" : "true");
+  this.textContent = state.muted ? "Ses kapalı" : "Ses açık";
+  if (outGain) outGain.gain.value = state.muted ? 0 : 1;
+});
+
+let taps = [];
+$("tap").addEventListener("click", () => {
+  const t = performance.now();
+  taps = taps.filter(x => t - x < 2600);
+  taps.push(t);
+  if (taps.length >= 3){
+    let sum = 0;
+    for (let i=1;i<taps.length;i++) sum += taps[i]-taps[i-1];
+    const avg = sum/(taps.length-1);
+    const bpm = clamp(Math.round(60000/avg), 60, 180);
+    state.bpm = bpm;
+    $("bpm").value = bpm;
+    $("bpmVal").textContent = bpm + " BPM";
+    refreshSummary();
+    render();
+    if (state.audio && state.audio.kind === "builtin") applyBuiltinBeat();
+  }
+});
+
+/* --- Yazı --- */
+buildChipRow("titleStyleRow", TITLE_STYLES, () => state.titleStyle, (id) => { state.titleStyle = id; render(); });
+buildChipRow("titlePosRow", TITLE_POS, () => state.titlePos, (id) => { state.titlePos = id; render(); });
+$("title").addEventListener("input", function(){ state.title = this.value; render(); });
+$("handle").addEventListener("input", function(){ state.handle = this.value; render(); });
+$("titleTiming").addEventListener("click", function(){
+  state.titleIntroOnly = !state.titleIntroOnly;
+  this.setAttribute("aria-pressed", state.titleIntroOnly ? "true" : "false");
+  this.textContent = state.titleIntroOnly ? "Sadece başta" : "Tüm video";
+  render();
+});
+
+/* --- Transport --- */
+$("play").addEventListener("click", () => { playing ? pause() : play(); });
+$("scrub").addEventListener("input", function(){
+  scrubbing = true;
+  const total = totalDur();
+  seekAt = total * (+this.value/1000);
+  if (playing){ clockZero = now() - seekAt; stopSource(); startSource(seekAt); }
+  drawFrame(ctx, cv.width, cv.height, seekAt);
+  $("tNow").textContent = seekAt.toFixed(1);
+});
+$("scrub").addEventListener("change", () => { scrubbing = false; });
+
+/* ============================================================
+   Dışa aktarma
+   ============================================================ */
+const RESOLUTIONS = [
+  { id:"preview", name:"Standart" },
+  { id:"high",    name:"Yüksek (1080p)" }
+];
+buildChipRow("resRow", RESOLUTIONS, () => state.res, (id) => { state.res = id; });
+
+function setStatus(msg, kind){
+  const el = $("status");
+  el.textContent = msg || "";
+  el.className = "status" + (kind ? " " + kind : "");
+}
+function fmtTime(s){
+  s = Math.max(0, Math.floor(s));
+  return Math.floor(s/60) + ":" + String(s%60).padStart(2,"0");
+}
+
+function pickMime(){
+  if (typeof MediaRecorder === "undefined") return null;
+  const list = [
+    "video/mp4;codecs=avc1.42E01E,mp4a.40.2",
+    "video/mp4;codecs=avc1",
+    "video/mp4",
+    "video/webm;codecs=vp9,opus",
+    "video/webm;codecs=vp8,opus",
+    "video/webm"
+  ];
+  for (const m of list){
+    try { if (MediaRecorder.isTypeSupported(m)) return m; } catch(e){}
+  }
+  return "";
+}
+
+let lastBlob = null, lastName = "";
+
+async function doExport(){
+  if (!state.clips.length) return;
+  if (playing) pause();
+  const total = totalDur();
+  if (!total) return;
+
+  const exCv = $("exportCanvas");
+  const dims = RATIOS[state.ratio][state.res] || RATIOS[state.ratio].preview;
+  exCv.width = dims[0]; exCv.height = dims[1];
+  const exCtx = exCv.getContext("2d");
+
+  if (!exCv.captureStream){
+    setStatus("Bu tarayıcı video kaydını desteklemiyor. Safari veya Chrome'un güncel sürümünü dene.", "err");
+    return;
+  }
+  const mime = pickMime();
+  if (mime === null){
+    setStatus("Bu tarayıcıda video kaydı yok. Safari veya Chrome'un güncel sürümünü dene.", "err");
+    return;
+  }
+
+  const c = AC();
+  if (c && c.state === "suspended"){ try { await c.resume(); } catch(e){} }
+
+  const stream = exCv.captureStream(30);
+  let dest = null;
+  if (c && state.audio && state.audio.buffer && c.createMediaStreamDestination){
+    dest = c.createMediaStreamDestination();
+    dest.stream.getAudioTracks().forEach(tr => stream.addTrack(tr));
+  }
+
+  let rec;
+  try {
+    rec = new MediaRecorder(stream, mime ? { mimeType: mime, videoBitsPerSecond: 7000000 } : { videoBitsPerSecond: 7000000 });
+  } catch(e){
+    try { rec = new MediaRecorder(stream); } catch(e2){
+      setStatus("Kayıt başlatılamadı: " + e2.message, "err");
+      return;
+    }
+  }
+
+  const chunks = [];
+  rec.ondataavailable = (ev) => { if (ev.data && ev.data.size) chunks.push(ev.data); };
+
+  const done = new Promise((resolve) => { rec.onstop = () => resolve(); });
+
+  $("exportBtn").disabled = true;
+  $("play").disabled = true;
+  $("result").hidden = true;
+  $("meterWrap").hidden = false;
+  $("meter").style.width = "0%";
+  setStatus("Video oluşturuluyor — ekranı kapatma, " + Math.ceil(total) + " sn sürer.");
+
+  startSource(0, dest);
+  const t0 = now();
+  rec.start(250);
+
+  await new Promise((resolve) => {
+    function step(){
+      const t = now() - t0;
+      const p = clamp(t/total, 0, 1);
+      $("meter").style.width = (p*100).toFixed(1) + "%";
+      drawFrame(exCtx, exCv.width, exCv.height, Math.min(t, total - 0.001));
+      if (t >= total){ resolve(); return; }
+      requestAnimationFrame(step);
+    }
+    step();
+  });
+
+  try { rec.stop(); } catch(e){}
+  stopSource();
+  await done;
+  stream.getTracks().forEach(tr => { try { tr.stop(); } catch(e){} });
+
+  const type = (rec.mimeType || mime || "video/webm").split(";")[0];
+  lastBlob = new Blob(chunks, { type });
+  const ext = type.indexOf("mp4") >= 0 ? "mp4" : "webm";
+  const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
+  lastName = "reel-" + stamp + "." + ext;
+
+  const url = URL.createObjectURL(lastBlob);
+  const vid = $("out");
+  if (vid.src) URL.revokeObjectURL(vid.src);
+  vid.src = url;
+  $("result").hidden = false;
+  $("meterWrap").hidden = true;
+  $("exportBtn").disabled = false;
+  $("play").disabled = false;
+  const mb = (lastBlob.size/1048576).toFixed(1);
+  setStatus("Hazır · " + ext.toUpperCase() + " · " + mb + " MB", "ok");
+  refreshShare();
+}
+$("exportBtn").addEventListener("click", () => {
+  doExport().catch(e => {
+    setStatus("Oluşturulamadı: " + (e && e.message ? e.message : e), "err");
+    $("exportBtn").disabled = false;
+    $("play").disabled = false;
+    $("meterWrap").hidden = true;
+    stopSource();
+  });
+});
+
+/* --- Kaydet / paylaş --- */
+let downloadsCap = null;
+if (window.claude && typeof window.claude.use === "function"){
+  window.claude.use("downloads").then(d => { downloadsCap = d; }).catch(() => {});
+}
+
+function refreshShare(){
+  let ok = false;
+  try {
+    if (lastBlob && navigator.canShare){
+      ok = navigator.canShare({ files: [new File([lastBlob], lastName, { type: lastBlob.type })] });
+    }
+  } catch(e){ ok = false; }
+  $("shareBtn").hidden = !ok;
+}
+
+$("saveBtn").addEventListener("click", async () => {
+  if (!lastBlob) return;
+  if (downloadsCap){
+    try {
+      await downloadsCap.save({ filename: lastName, data: lastBlob });
+      setStatus("Kaydedildi: " + lastName, "ok");
+    } catch(err){
+      const code = err && err.code;
+      if (code === "declined") setStatus("Kaydetme iptal edildi.");
+      else if (code === "rate_limited") setStatus("Biraz bekleyip tekrar dene.", "err");
+      else setStatus("Kaydedilemedi. Videoya uzun basıp kaydetmeyi dene.", "err");
+    }
+    return;
+  }
+  try {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(lastBlob);
+    a.download = lastName;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+    setStatus("İndiriliyor: " + lastName, "ok");
+  } catch(e){
+    setStatus("İndirilemedi. Videoya uzun basıp kaydetmeyi dene.", "err");
+  }
+});
+
+$("shareBtn").addEventListener("click", async () => {
+  if (!lastBlob) return;
+  try {
+    await navigator.share({ files: [new File([lastBlob], lastName, { type: lastBlob.type })], title: "Reel" });
+  } catch(e){
+    if (!e || e.name !== "AbortError") setStatus("Paylaşım açılamadı.", "err");
+  }
+});
+
+/* ============================================================
+   Ana ekrana ekleme (iOS) için meta etiketleri
+   ============================================================ */
+function installMeta(){
+  try {
+    const add = (name, content) => {
+      const m = document.createElement("meta");
+      m.setAttribute("name", name);
+      m.setAttribute("content", content);
+      document.head.appendChild(m);
+    };
+    // Artifact kabuğu kendi viewport meta'sını koyar; tek başına barındırılan
+    // kopyada (repo / kendi sunucun) telefonda doğru ölçek için biz ekleriz.
+    if (!document.querySelector('meta[name="viewport"]')){
+      const v = document.createElement("meta");
+      v.setAttribute("name", "viewport");
+      v.setAttribute("content", "width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1");
+      document.head.appendChild(v);
+    }
+    add("apple-mobile-web-app-capable", "yes");
+    add("mobile-web-app-capable", "yes");
+    add("apple-mobile-web-app-status-bar-style", "black-translucent");
+    add("apple-mobile-web-app-title", "Reel Atölyesi");
+    add("theme-color", "#0A0A0E");
+
+    const ic = document.createElement("canvas");
+    ic.width = ic.height = 180;
+    const g = ic.getContext("2d");
+    const grad = g.createLinearGradient(0,0,180,180);
+    grad.addColorStop(0, "#FF3D74"); grad.addColorStop(1, "#FF9A3D");
+    g.fillStyle = grad; g.fillRect(0,0,180,180);
+    g.fillStyle = "rgba(10,10,14,0.92)";
+    g.beginPath(); g.arc(90, 90, 46, 0, Math.PI*2); g.fill();
+    g.fillStyle = "#FFFFFF";
+    g.beginPath(); g.moveTo(76, 66); g.lineTo(118, 90); g.lineTo(76, 114); g.closePath(); g.fill();
+    const link = document.createElement("link");
+    link.rel = "apple-touch-icon";
+    link.href = ic.toDataURL("image/png");
+    document.head.appendChild(link);
+  } catch(e){}
+}
+
+/* ============================================================
+   Başlangıç
+   ============================================================ */
+async function boot(){
+  installMeta();
+  state.clips = makeDemoClips();
+  setCanvasSize();
+  afterClipChange();
+  $("beatsVal").textContent = state.beatsPerClip + " vuruş";
+  $("bpmVal").textContent = state.bpm + " BPM";
+  $("tplName").textContent = tpl().name.toUpperCase();
+
+  if (document.fonts && document.fonts.load){
+    Promise.all([
+      document.fonts.load('800 60px "Bricolage Grotesque"'),
+      document.fonts.load('700 40px "Manrope"'),
+      document.fonts.load('500 30px "JetBrains Mono"')
+    ]).then(render).catch(() => {});
+  }
+
+  // Dahili ritim, ilk dokunuşta hazırlanır (iOS ses politikası)
+  const warm = async () => {
+    document.removeEventListener("pointerdown", warm);
+    AC();
+    if (!state.audio) await applyBuiltinBeat();
+  };
+  document.addEventListener("pointerdown", warm, { once:true });
+
+  render();
+}
+boot();
+
+})();
+</script>
