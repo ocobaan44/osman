@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "Reel Atölyesi",
+    "slug": "reel-atolyesi",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "reelatolyesi",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0A0A0E",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.ocobaan44.reelatolyesi",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Reel oluşturmak için fotoğraflarını seçebilmen gerekiyor.",
+        "NSPhotoLibraryAddUsageDescription": "Oluşturduğun reel videosunu Fotoğraflar'a kaydetmek için.",
+        "UIBackgroundModes": []
+      }
+    },
+    "android": {
+      "package": "com.ocobaan44.reelatolyesi",
+      "adaptiveIcon": {
+        "backgroundColor": "#0A0A0E",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": { "favicon": "./assets/favicon.png" },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Reel oluşturmak için fotoğraflarına erişim gerekiyor."
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Oluşturduğun videoyu kaydetmek için gerekiyor.",
+          "savePhotosPermission": "Oluşturduğun videoyu Fotoğraflar'a kaydetmek için gerekiyor.",
+          "isAccessMediaLocationEnabled": false
+        }
+      ]
+    ]
+  }
+}

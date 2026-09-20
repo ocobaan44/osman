@@ -1,0 +1,7 @@
+{
+  "name": "reel-exporter",
+  "version": "1.0.0",
+  "description": "Reel Atölyesi için AVFoundation tabanlı video dışa aktarıcı",
+  "main": "index.ts",
+  "private": true
+}
